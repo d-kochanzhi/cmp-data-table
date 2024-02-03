@@ -1,0 +1,16 @@
+<script>
+export default {
+  name: 'cmp-table-header',
+  extends: BaseColumn,
+  inject: ['$columns'],
+  mounted() {
+    this.$columns?.add(this.$);
+  },
+  unmounted() {
+    this.$columns?.delete(this.$);
+  },
+  render() {
+    return null;
+  },
+};
+</script>
