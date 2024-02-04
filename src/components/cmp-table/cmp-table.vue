@@ -1,6 +1,7 @@
 <template>
   <div class="cmp-table" :class="[tableClassName]">
     <div class="cmp-table__main">
+      <button @click="onClick">Increase</button>
       <table>
         <caption v-if="props.caption">
           {{
@@ -23,10 +24,10 @@
                 {
                   sortable: header.sortable,
                 },
-                getColSortStyle(header, viewOptionsComputed),
+                getColSortStyle(header, viewOptions),
               ]"
               @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
-              {{ viewOptionsComputed.orderBy[header.field] }}
+              {{ viewOptions.orderBy[header.field] }}
               <span class="header">
                 <slot
                   v-if="slots[`header-${header.field}`]"
@@ -42,9 +43,9 @@
                 </span>
                 <i
                   v-if="header.sortable"
-                  :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
+                  :key="viewOptions.orderBy[header.field] ?? 'none'"
                   class="sortType-icon"
-                  :class="getColSortStyle(header, viewOptionsComputed)"></i>
+                  :class="getColSortStyle(header, viewOptions)"></i>
               </span>
             </th>
           </tr>
@@ -173,6 +174,8 @@ const {
   updateViewOptionsRowsPerPage,
 } = useViewOptions(viewOptions, emits);
 
+const onClick = () => viewOptions.value.page++; // ref update
+
 const headersForRender = computed(() => {
   console.log('headersForRender');
   return headers.value.filter((i) => !i.hidden);
@@ -183,29 +186,17 @@ const rowsForRender = computed(() => {
   return getPagedItems(items.value, viewOptions.value);
 });
 
-watch(
-  viewOptions,
-  (newX) => {
-    console.log(`x is ${newX}`);
-  },
-  { deep: true },
-);
+watch(viewOptions, (newX) => {
+  console.log(`x is ${newX}`);
+});
 
-watch(
-  props.viewOptions,
-  (newX) => {
-    console.log(`y is ${newX}`);
-  },
-  { deep: true },
-);
+watch(props.viewOptions, (newX) => {
+  console.log(`y is ${newX}`);
+});
 
-watch(
-  viewOptionsComputed,
-  (newX) => {
-    console.log(`z is ${newX}`);
-  },
-  { deep: true },
-);
+watch(viewOptionsComputed, (newX) => {
+  console.log(`z is ${newX}`);
+});
 </script>
 
 <style>

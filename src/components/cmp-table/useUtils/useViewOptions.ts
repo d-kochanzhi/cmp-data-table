@@ -10,8 +10,8 @@ export default function useViewOptions(
       if (viewOptions.value) {
         const { page, rowsPerPage, orderBy, where } = viewOptions.value;
         return {
-          page,
-          rowsPerPage,
+          page: page,
+          rowsPerPage: rowsPerPage,
           orderBy: orderBy ?? {},
           where: where ?? {},
         };
