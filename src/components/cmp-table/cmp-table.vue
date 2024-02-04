@@ -39,7 +39,7 @@
                   v-bind="header" />
                 <slot v-else-if="slots['header']" name="header" v-bind="header" />
                 <span v-else class="header-text">
-                  {{ header.field }}
+                  {{ header.title }}
                 </span>
                 <i
                   v-if="header.sortable"
@@ -117,7 +117,7 @@ import {
   defineEmits,
   useSlots,
   watch,
-  toRefs,
+  toRefs, ref, watchEffect,
 } from 'vue';
 import { Item, Header, ViewOptions } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
@@ -183,20 +183,32 @@ const headersForRender = computed(() => {
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
-  return getPagedItems(items.value, viewOptions.value);
+  const [field, direction] = Object.entries(viewOptionsComputed.value.orderBy)[0];
+  const sortedItems = items.value.sort((a: Item, b: Item) => {
+    const valA = generateColumnContent(field, a);
+    const valB = generateColumnContent(field, b);
+    if (direction === 'asc') {
+      return valA > valB ? 1 : -1;
+    }
+    if (direction === 'desc') {
+      return valB > valA ? 1 : -1;
+    }
+    return 0;
+  });
+  return getPagedItems(sortedItems, viewOptions.value);
 });
 
-watch(viewOptions, (newX) => {
-  console.log(`x is ${newX}`);
-});
-
-watch(props.viewOptions, (newX) => {
-  console.log(`y is ${newX}`);
-});
-
-watch(viewOptionsComputed, (newX) => {
-  console.log(`z is ${newX}`);
-});
+// watch(viewOptions, (newX) => {
+//   console.log(`x is ${newX}`);
+// });
+//
+// watch(props.viewOptions, (newX) => {
+//   console.log(`y is ${newX}`);
+// });
+//
+// watch(viewOptionsComputed, (newX) => {
+//   console.log(`z is ${newX}`);
+// });
 </script>
 
 <style>

@@ -1,14 +1,15 @@
-import { Ref, computed } from 'vue';
+import { Ref, computed, ref } from 'vue';
 import { EmitsEventName, ViewOptions } from '../types/cmp-table';
 
 export default function useViewOptions(
   viewOptions: Ref<ViewOptions | null>,
   emits: (event: EmitsEventName, ...args: any[]) => void,
 ) {
+  const options = ref(viewOptions.value)
   const viewOptionsComputed = computed({
     get: (): ViewOptions => {
-      if (viewOptions.value) {
-        const { page, rowsPerPage, orderBy, where } = viewOptions.value;
+      if (options.value) {
+        const { page, rowsPerPage, orderBy, where } = options.value;
         return {
           page: page,
           rowsPerPage: rowsPerPage,
