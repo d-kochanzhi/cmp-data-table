@@ -21,23 +21,24 @@
 <script lang="ts" setup>
 import cmpTable from '@/components/cmp-table/cmp-table.vue';
 import { Header, Item, ViewOptions } from '@/components/cmp-table/types/cmp-table';
+import { ref } from 'vue';
 
-const options: ViewOptions = {
+const options = ref<ViewOptions>({
   page: 1,
   rowsPerPage: 30,
   orderBy: { team: 'desc' },
   where: {},
-};
+});
 
-const headers: Header[] = [
+const headers = ref<Header[]>([
   { title: 'player', field: 'player', width: 150, identity: true },
   { title: 'team', field: 'team', sortable: true },
   { title: 'number', field: 'number', sortable: true },
   { title: 'indicator', field: 'indicator.weight' },
   { title: 'country', field: 'country' },
-];
+]);
 
-const items: Item[] = [
+const items = ref<Item[]>([
   {
     player: 'Stephen Curry',
     team: 'GSW',
@@ -59,10 +60,10 @@ const items: Item[] = [
     indicator: { height: '8', weight: 250 },
     country: 'USA',
   },
-];
+]);
 
 const rowClicked = (item: Item, event: Event) => {
-  items.push({
+  items.value.push({
     player: 'New Joe',
     team: 'Pioner',
     number: 0,

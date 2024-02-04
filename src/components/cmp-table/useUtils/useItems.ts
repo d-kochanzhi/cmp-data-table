@@ -61,7 +61,7 @@ export default function useItems() {
   };
 
   const getItemsForRender = (items: Array<Item>, options: ViewOptions) => {
-    let result = items;
+    let result = [...items];
     let sortKeys = Object.keys(options.orderBy);
     if (sortKeys.length > 0)
       result = result.sort((a, b) =>
