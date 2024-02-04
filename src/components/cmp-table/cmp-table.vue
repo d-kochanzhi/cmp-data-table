@@ -1,7 +1,9 @@
 <template>
   <div class="cmp-table" :class="[tableClassName]">
     <div class="cmp-table__main">
-      <button @click="onClick">Increase</button>
+      <div>
+        <input placeholder="Keyword Search" />
+      </div>
       <table>
         <caption v-if="props.caption">
           {{
@@ -27,7 +29,6 @@
                 getColSortStyle(header, viewOptionsComputed),
               ]"
               @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
-              {{ viewOptionsComputed.orderBy[header.field] }}
               <span class="header">
                 <slot
                   v-if="slots[`header-${header.field}`]"
@@ -167,7 +168,13 @@ const props = defineProps({
 
 const { viewOptions, headers, items } = toRefs(props);
 
-const { generateColumnContent, getColStyle, getColSortStyle, getPagedItems } = useItems();
+const {
+  generateColumnContent,
+  getColStyle,
+  getColSortStyle,
+  getPagedItems,
+  getItemsForRender,
+} = useItems();
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {
   viewOptionsComputed,
@@ -185,19 +192,7 @@ const headersForRender = computed(() => {
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
-  const [field, direction] = Object.entries(viewOptionsComputed.value.orderBy)[0];
-  const sortedItems = items.value.sort((a: Item, b: Item) => {
-    const valA = generateColumnContent(field, a);
-    const valB = generateColumnContent(field, b);
-    if (direction === 'asc') {
-      return valA > valB ? 1 : -1;
-    }
-    if (direction === 'desc') {
-      return valB > valA ? 1 : -1;
-    }
-    return 0;
-  });
-  return getPagedItems(sortedItems, viewOptionsComputed.value);
+  return getItemsForRender(items.value, viewOptionsComputed.value);
 });
 </script>
 
@@ -209,6 +204,10 @@ const rowsForRender = computed(() => {
   --cmp-table-scrollbar-thumb-color: #c1c1c1;
   --cmp-table-scrollbar-corner-color: #fff;
 
+  /*header*/
   --cmp-table-header-font-color: #373737;
+
+  /*row*/
+  --cmp-table-row-even-color: #dddddd;
 }
 </style>

@@ -1,3 +1,4 @@
+import { SortType } from './../types/cmp-table';
 import { Header, Item, ViewOptions } from '../types/cmp-table';
 
 export default function useItems() {
@@ -25,6 +26,17 @@ export default function useItems() {
     return item[column] ?? '';
   };
 
+  const sortItemsFunc = function (field: string, sortType: SortType, a: Item, b: Item) {
+    const valA = generateColumnContent(field, a);
+    const valB = generateColumnContent(field, b);
+    if (sortType === 'asc') {
+      return valA > valB ? 1 : -1;
+    } else if (sortType === 'desc') {
+      return valB > valA ? 1 : -1;
+    }
+    return 0;
+  };
+
   const generateColumnContent = function (column: string, item: Item) {
     const content = getItemValue(column, item);
     return Array.isArray(content) ? content.join(',') : content;
@@ -41,11 +53,21 @@ export default function useItems() {
     return 'none';
   };
 
-  const getPagedItems = (array: Array<Item>, options: ViewOptions) => {
-    return array.slice(
+  const getPagedItems = (items: Array<Item>, options: ViewOptions) => {
+    return items.slice(
       (options.page - 1) * options.rowsPerPage,
       options.page * options.rowsPerPage,
     );
+  };
+
+  const getItemsForRender = (items: Array<Item>, options: ViewOptions) => {
+    let result = items;
+    let sortKeys = Object.keys(options.orderBy);
+    if (sortKeys.length > 0)
+      result = result.sort((a, b) =>
+        sortItemsFunc(sortKeys[0], options.orderBy[sortKeys[0]], a, b),
+      );
+    return getPagedItems(result, options);
   };
 
   return {
@@ -53,5 +75,6 @@ export default function useItems() {
     getColStyle,
     getColSortStyle,
     getPagedItems,
+    getItemsForRender,
   };
 }

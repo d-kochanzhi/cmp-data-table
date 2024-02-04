@@ -32,7 +32,7 @@ const options: ViewOptions = {
 const headers: Header[] = [
   { title: 'player', field: 'player', width: 150, identity: true },
   { title: 'team', field: 'team', sortable: true },
-  { title: 'number', field: 'number' },
+  { title: 'number', field: 'number', sortable: true },
   { title: 'indicator', field: 'indicator.weight' },
   { title: 'country', field: 'country' },
 ];
@@ -43,7 +43,6 @@ const items: Item[] = [
     team: 'GSW',
     number: 30,
     indicator: { height: '6-9', weight: 250 },
-    lastAttended: 'Davidson',
     country: 'USA',
   },
   {
@@ -51,12 +50,24 @@ const items: Item[] = [
     team: 'LAL',
     number: 6,
     indicator: { height: '6-9', weight: 777 },
-    lastAttended: 'St. Vincent-St. Mary HS (OH)',
+    country: 'USA',
+  },
+  {
+    player: 'Stuard Joe',
+    team: 'Pioner',
+    number: 12,
+    indicator: { height: '8', weight: 250 },
     country: 'USA',
   },
 ];
 
 const rowClicked = (item: Item, event: Event) => {
-  console.log('row clicked!');
+  items.push({
+    player: 'New Joe',
+    team: 'Pioner',
+    number: 0,
+    indicator: { height: '0', weight: 0 },
+    country: 'RUS',
+  });
 };
 </script>

@@ -28,6 +28,9 @@
   }
 
   > table {
+    border-spacing: 0px;
+    width: 100%;
+
     > thead {
       tr {
         border: none;
@@ -81,6 +84,14 @@
               transform: rotate(180deg);
             }
           }
+        }
+      }
+    }
+
+    > tbody {
+      > tr {
+        &.even-row {
+          background-color: var(--cmp-table-row-even-color);
         }
       }
     }
