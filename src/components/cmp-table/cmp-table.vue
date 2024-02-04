@@ -24,10 +24,10 @@
                 {
                   sortable: header.sortable,
                 },
-                getColSortStyle(header, viewOptions),
+                getColSortStyle(header, viewOptionsComputed),
               ]"
               @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
-              {{ viewOptions.orderBy[header.field] }}
+              {{ viewOptionsComputed.orderBy[header.field] }}
               <span class="header">
                 <slot
                   v-if="slots[`header-${header.field}`]"
@@ -43,9 +43,9 @@
                 </span>
                 <i
                   v-if="header.sortable"
-                  :key="viewOptions.orderBy[header.field] ?? 'none'"
+                  :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
                   class="sortType-icon"
-                  :class="getColSortStyle(header, viewOptions)"></i>
+                  :class="getColSortStyle(header, viewOptionsComputed)"></i>
               </span>
             </th>
           </tr>
@@ -117,7 +117,9 @@ import {
   defineEmits,
   useSlots,
   watch,
-  toRefs, ref, watchEffect,
+  toRefs,
+  ref,
+  watchEffect,
 } from 'vue';
 import { Item, Header, ViewOptions } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
@@ -174,7 +176,7 @@ const {
   updateViewOptionsRowsPerPage,
 } = useViewOptions(viewOptions, emits);
 
-const onClick = () => viewOptions.value.page++; // ref update
+const onClick = () => updateViewOptionsPage(5); // ref update
 
 const headersForRender = computed(() => {
   console.log('headersForRender');
@@ -195,20 +197,8 @@ const rowsForRender = computed(() => {
     }
     return 0;
   });
-  return getPagedItems(sortedItems, viewOptions.value);
+  return getPagedItems(sortedItems, viewOptionsComputed.value);
 });
-
-// watch(viewOptions, (newX) => {
-//   console.log(`x is ${newX}`);
-// });
-//
-// watch(props.viewOptions, (newX) => {
-//   console.log(`y is ${newX}`);
-// });
-//
-// watch(viewOptionsComputed, (newX) => {
-//   console.log(`z is ${newX}`);
-// });
 </script>
 
 <style>

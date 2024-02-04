@@ -24,7 +24,7 @@ import { Header, Item, ViewOptions } from '@/components/cmp-table/types/cmp-tabl
 
 const options: ViewOptions = {
   page: 1,
-  rowsPerPage: 25,
+  rowsPerPage: 30,
   orderBy: { team: 'desc' },
   where: {},
 };

@@ -1,31 +1,29 @@
-import { Ref, computed, ref } from 'vue';
+import { Ref, computed, reactive, ref } from 'vue';
 import { EmitsEventName, ViewOptions } from '../types/cmp-table';
+import useEmits from './useEmits';
 
 export default function useViewOptions(
   viewOptions: Ref<ViewOptions | null>,
   emits: (event: EmitsEventName, ...args: any[]) => void,
 ) {
-  const options = ref(viewOptions.value)
+  const { updateViewOptions } = useEmits(emits);
+
+  const viewOptionsRef = ref(
+    viewOptions.value || {
+      page: 1,
+      rowsPerPage: 25,
+      orderBy: {},
+      where: {},
+    },
+  );
+
   const viewOptionsComputed = computed({
     get: (): ViewOptions => {
-      if (options.value) {
-        const { page, rowsPerPage, orderBy, where } = options.value;
-        return {
-          page: page,
-          rowsPerPage: rowsPerPage,
-          orderBy: orderBy ?? {},
-          where: where ?? {},
-        };
-      }
-      return {
-        page: 1,
-        rowsPerPage: 25,
-        orderBy: {},
-        where: {},
-      };
+      return viewOptionsRef.value;
     },
     set: (value) => {
-      emits('update:viewOptions', value);
+      viewOptionsRef.value = value;
+      updateViewOptions(value);
     },
   });
 
@@ -33,7 +31,7 @@ export default function useViewOptions(
     if (viewOptionsComputed.value) {
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
-        page,
+        page: page,
       };
     }
   };
@@ -43,7 +41,7 @@ export default function useViewOptions(
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
         page: 1,
-        rowsPerPage,
+        rowsPerPage: rowsPerPage,
       };
     }
   };
@@ -59,12 +57,11 @@ export default function useViewOptions(
       }
 
       Object.keys(viewOptionsComputed.value.orderBy).forEach(
-        (key) => key !== field && delete viewOptionsComputed.value.orderBy[key],
+        (key) => key !== field && delete viewOptionsComputed.value!.orderBy[key],
       );
 
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
-        page: Math.floor(Math.random() * 100),
       };
     }
   };
