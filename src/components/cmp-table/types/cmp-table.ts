@@ -39,7 +39,6 @@ export type ClickEventType = 'single' | 'double';
 
 export type EmitsEventName =
   | 'clickRow'
-  | 'updateSort'
   | 'contextmenuRow'
   | 'update:viewOptions'
   | 'update:items'

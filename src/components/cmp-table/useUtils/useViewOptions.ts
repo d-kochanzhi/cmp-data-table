@@ -66,10 +66,21 @@ export default function useViewOptions(
     }
   };
 
+  const updateViewOptionsWhere = (searchString: string) => {
+    if (viewOptionsComputed.value) {
+      viewOptionsComputed.value = {
+        ...viewOptionsComputed.value,
+        page: 1,
+        where: { g: searchString },
+      };
+    }
+  };
+
   return {
     viewOptionsComputed,
     updateViewOptionsPage,
     updateViewOptionsOrderBy,
     updateViewOptionsRowsPerPage,
+    updateViewOptionsWhere,
   };
 }

@@ -1,7 +1,15 @@
-import { SortType } from './../types/cmp-table';
-import { Header, Item, ViewOptions } from '../types/cmp-table';
+import { Header, Item, ViewOptions, SortType } from '../types/cmp-table';
+import { computed, reactive, ref, Ref } from 'vue';
 
-export default function useItems() {
+export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Header[]>) {
+  const viewOptionsComputed = computed((): ViewOptions => {
+    return viewOptions.value;
+  });
+
+  const headersComputed = computed((): Header[] => {
+    return headers.value;
+  });
+
   const getItemValue = function (column: string, item: Item) {
     if (column.includes('.')) {
       const keys = column.split('.');
@@ -48,33 +56,65 @@ export default function useItems() {
     return undefined;
   };
 
-  const getColSortStyle = (header: Header, options: ViewOptions): string => {
-    if (header.sortable) return options.orderBy[header.field] || 'none';
+  const getColSortStyle = (header: Header): string => {
+    if (header.sortable) return viewOptionsComputed.value.orderBy[header.field] || 'none';
     return 'none';
   };
 
-  const getPagedItems = (items: Array<Item>, options: ViewOptions) => {
+  const getPagedItems = (items: Array<Item>) => {
     return items.slice(
-      (options.page - 1) * options.rowsPerPage,
-      options.page * options.rowsPerPage,
+      (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage,
+      viewOptionsComputed.value.page * viewOptionsComputed.value.rowsPerPage,
     );
   };
 
-  const getItemsForRender = (items: Array<Item>, options: ViewOptions) => {
-    let result = [...items];
-    let sortKeys = Object.keys(options.orderBy);
-    if (sortKeys.length > 0)
+  const getOrderedItems = (items: Array<Item>) => {
+    let sortKeys = Object.keys(viewOptionsComputed.value.orderBy);
+    if (sortKeys.length > 0) {
+      let result = [...items];
       result = result.sort((a, b) =>
-        sortItemsFunc(sortKeys[0], options.orderBy[sortKeys[0]], a, b),
+        sortItemsFunc(sortKeys[0], viewOptionsComputed.value.orderBy[sortKeys[0]], a, b),
       );
-    return getPagedItems(result, options);
+
+      return result;
+    }
+    return items;
+  };
+
+  const getFilteredItems = (items: Array<Item>) => {
+    if (!viewOptionsComputed.value.where['g']) return items;
+
+    let result: Array<Item> = [];
+    headersComputed.value
+      .filter((c) => c.filterable)
+      .forEach((c) => {
+        result = [
+          ...result,
+          ...items.filter(
+            (i) =>
+              String(generateColumnContent(c.field, i))
+                .toLowerCase()
+                .indexOf(viewOptionsComputed.value.where['g'].toLowerCase()) > -1,
+          ),
+        ];
+      });
+    return result;
+  };
+
+  const getItemsForRender = (items: Array<Item>) => {
+    let result = [...items];
+
+    result = getFilteredItems(result);
+    result = getOrderedItems(result);
+    result = getPagedItems(result);
+
+    return result;
   };
 
   return {
     generateColumnContent,
     getColStyle,
     getColSortStyle,
-    getPagedItems,
     getItemsForRender,
   };
 }

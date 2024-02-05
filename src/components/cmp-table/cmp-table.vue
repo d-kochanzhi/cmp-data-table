@@ -2,7 +2,11 @@
   <div class="cmp-table" :class="[tableClassName]">
     <div class="cmp-table__main">
       <div>
-        <input placeholder="Keyword Search" />
+        <button @click="click">Click!</button>
+        <input
+          placeholder="Keyword Search"
+          v-model="searchGlobalInput"
+          v-on:input="searchChange" />
       </div>
       <table>
         <caption v-if="props.caption">
@@ -26,7 +30,7 @@
                 {
                   sortable: header.sortable,
                 },
-                getColSortStyle(header, viewOptionsComputed),
+                getColSortStyle(header),
               ]"
               @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
               <span class="header">
@@ -46,7 +50,7 @@
                   v-if="header.sortable"
                   :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
                   class="sortType-icon"
-                  :class="getColSortStyle(header, viewOptionsComputed)"></i>
+                  :class="getColSortStyle(header)"></i>
               </span>
             </th>
           </tr>
@@ -134,7 +138,6 @@ import useViewOptions from './useUtils/useViewOptions';
 const slots = useSlots();
 
 const emits = defineEmits([
-  'updateSort',
   'clickRow',
   'contextmenuRow',
   'update:viewOptions',
@@ -168,22 +171,24 @@ const props = defineProps({
 
 const { viewOptions, headers, items } = toRefs(props);
 
-const {
-  generateColumnContent,
-  getColStyle,
-  getColSortStyle,
-  getPagedItems,
-  getItemsForRender,
-} = useItems();
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {
   viewOptionsComputed,
   updateViewOptionsPage,
   updateViewOptionsOrderBy,
   updateViewOptionsRowsPerPage,
+  updateViewOptionsWhere,
 } = useViewOptions(viewOptions, emits);
 
-const onClick = () => updateViewOptionsPage(5); // ref update
+const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } =
+  useItems(viewOptionsComputed, headers);
+
+const searchGlobalInput = ref('');
+const searchChange = () => updateViewOptionsWhere(searchGlobalInput.value);
+
+const click = () => {
+  updateViewOptionsPage(Math.floor(Math.random() * 10));
+};
 
 const headersForRender = computed(() => {
   console.log('headersForRender');
@@ -192,7 +197,7 @@ const headersForRender = computed(() => {
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
-  return getItemsForRender(items.value, viewOptionsComputed.value);
+  return getItemsForRender(items.value);
 });
 </script>
 

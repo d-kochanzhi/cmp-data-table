@@ -14,9 +14,14 @@ export default function useItems(emits: (event: EmitsEventName, ...args: any[]) 
     emits('update:viewOptions', value);
   };
 
+  const updateItems = (value: Item[]) => {
+    emits('update:items', value);
+  };
+
   return {
     clickRow,
     contextMenuRow,
     updateViewOptions,
+    updateItems,
   };
 }
