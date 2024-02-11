@@ -29,19 +29,20 @@ export default function useViewOptions(
 
   const updateViewOptionsPage = (page: number) => {
     if (viewOptionsComputed.value) {
+      viewOptionsComputed.value.page = page;
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
-        page: page,
       };
     }
   };
 
   const updateViewOptionsRowsPerPage = (rowsPerPage: number) => {
     if (viewOptionsComputed.value) {
+      viewOptionsComputed.value.page = 1;
+      viewOptionsComputed.value.rowsPerPage = rowsPerPage;
+
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
-        page: 1,
-        rowsPerPage: rowsPerPage,
       };
     }
   };
@@ -68,10 +69,11 @@ export default function useViewOptions(
 
   const updateViewOptionsWhere = (searchString: string) => {
     if (viewOptionsComputed.value) {
+      viewOptionsComputed.value.page = 1;
+      viewOptionsComputed.value.where['g'] = searchString;
+
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,
-        page: 1,
-        where: { g: searchString },
       };
     }
   };

@@ -1,10 +1,14 @@
 import { PropType } from 'vue';
-import { Item } from './cmp-table';
+import { Item, TextDirection } from './cmp-table';
 
 export default {
   caption: {
     type: String,
     default: '',
+  },
+  searchPlaceholder: {
+    type: String,
+    default: 'Search',
   },
   alternating: {
     type: Boolean,
@@ -16,7 +20,7 @@ export default {
   },
   hideFooter: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   hideHeader: {
     type: Boolean,
@@ -41,5 +45,9 @@ export default {
   headerClassName: {
     type: String,
     default: '',
+  },
+  headerTextDirection: {
+    type: String as PropType<TextDirection>,
+    default: 'left',
   },
 };

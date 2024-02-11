@@ -7,11 +7,10 @@ export type SortType = 'asc' | 'desc' | 'none';
 export type Header = {
   title: string;
   field: string;
-  identity?: boolean;
   sortable?: boolean;
   filterable?: boolean;
   hidden?: boolean;
-  fixed?: boolean;
+  //fixed?: boolean;
   width?: number;
   //formatter?: ColumnRenderFunction;
 };
@@ -27,6 +26,7 @@ export interface Table {
 export type ViewOptions = {
   page: number;
   rowsPerPage: number;
+  //total: number;
   orderBy: {
     [key: string]: SortType;
   };
@@ -43,3 +43,5 @@ export type EmitsEventName =
   | 'update:viewOptions'
   | 'update:items'
   | 'update:headers';
+
+export type TextDirection = 'center' | 'left' | 'right';

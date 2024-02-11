@@ -34,6 +34,11 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
     return item[column] ?? '';
   };
 
+  const generateColumnContent = function (column: string, item: Item) {
+    const content = getItemValue(column, item);
+    return Array.isArray(content) ? content.join(',') : content;
+  };
+
   const sortItemsFunc = function (field: string, sortType: SortType, a: Item, b: Item) {
     const valA = generateColumnContent(field, a);
     const valB = generateColumnContent(field, b);
@@ -43,11 +48,6 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
       return valB > valA ? 1 : -1;
     }
     return 0;
-  };
-
-  const generateColumnContent = function (column: string, item: Item) {
-    const content = getItemValue(column, item);
-    return Array.isArray(content) ? content.join(',') : content;
   };
 
   const getColStyle = (header: Header): string | undefined => {
@@ -98,13 +98,16 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
           ),
         ];
       });
+
     return result;
   };
 
-  const getItemsForRender = (items: Array<Item>) => {
+  const getItemsForRender = (items: Array<Item>, total: Ref<number>) => {
     let result = [...items];
 
     result = getFilteredItems(result);
+    total.value = result.length;
+
     result = getOrderedItems(result);
     result = getPagedItems(result);
 

@@ -1,19 +1,29 @@
 <template>
   <div class="about">
-    <h1>This is home page</h1>
-
     <cmpTable
-      :caption="`this is a table`"
+      :caption="`Это таблица`"
+      :search-placeholder="`Поиск`"
+      show-index
+      :hideFooter="false"
       :headers="headers"
       :items="items"
       :view-options="options"
       @click-row="rowClicked">
+      <!--
+      <template #search-global="{ filterModel, filterCallback }">
+        <input
+          type="text"
+          :value="filterModel"
+          @keydown.enter="filterCallback($event)"
+          placeholder="Search" />
+      </template>
       <template #header-player="slotProps">
         <span> Колонка {{ slotProps.title }}</span>
       </template>
       <template #item-player="slotProps">
         <span> Игрок {{ slotProps.item[slotProps.header.field] }}</span>
       </template>
+      -->
     </cmpTable>
   </div>
 </template>
@@ -25,13 +35,13 @@ import { ref } from 'vue';
 
 const options = ref<ViewOptions>({
   page: 1,
-  rowsPerPage: 30,
+  rowsPerPage: 3,
   orderBy: { team: 'desc' },
   where: {},
 });
 
 const headers = ref<Header[]>([
-  { title: 'player', field: 'player', width: 150, identity: true, filterable: true },
+  { title: 'player', field: 'player', width: 250, filterable: true },
   { title: 'team', field: 'team', sortable: true },
   { title: 'number', field: 'number', sortable: true },
   { title: 'indicator', field: 'indicator.weight' },
@@ -59,6 +69,13 @@ const items = ref<Item[]>([
     number: 12,
     indicator: { height: '8', weight: 250 },
     country: 'USA',
+  },
+  {
+    player: 'Jon Joe',
+    team: 'Losted',
+    number: 2,
+    indicator: { height: '8', weight: 250 },
+    country: 'Russia',
   },
 ]);
 
