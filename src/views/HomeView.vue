@@ -16,14 +16,13 @@
           :value="filterModel"
           @keydown.enter="filterCallback($event)"
           placeholder="Search" />
-      </template>
+      </template>-->
       <template #header-player="slotProps">
         <span> Колонка {{ slotProps.title }}</span>
       </template>
       <template #item-player="slotProps">
         <span> Игрок {{ slotProps.item[slotProps.header.field] }}</span>
       </template>
-      -->
     </cmpTable>
   </div>
 </template>
@@ -42,7 +41,7 @@ const options = ref<ViewOptions>({
 
 const headers = ref<Header[]>([
   { title: 'player', field: 'player', width: 250, filterable: true },
-  { title: 'team', field: 'team', sortable: true },
+  { title: 'team', field: 'team', sortable: true, expandable: true },
   { title: 'number', field: 'number', sortable: true },
   { title: 'indicator', field: 'indicator.weight' },
   { title: 'country', field: 'country' },

@@ -2,7 +2,13 @@
   position: relative;
   box-sizing: border-box;
 }
-.cmp-table__main {
+
+div.cmp-table__filter {
+  justify-content: end;
+  display: flex;
+}
+
+div.cmp-table__main {
   border: none;
   width: 100%;
   overflow: auto;
@@ -25,11 +31,6 @@
 
   &::-webkit-scrollbar-corner {
     background-color: var(--cmp-table-scrollbar-corner-color);
-  }
-
-  > div.filter__global {
-    justify-content: end;
-    display: flex;
   }
 
   > table {
@@ -111,11 +112,32 @@
           background-color: var(--cmp-table-row-even-color);
         }
 
+        &.expandable-row {
+          font-weight: bold;
+          cursor: pointer;
+        }
+
         > td {
           text-align: left;
           border: 1px solid #e2e8f0;
           border-width: 0 0 1px 0;
           padding: 0.5rem 1rem;
+
+          i {
+            &.expand-icon {
+              border: solid;
+              border-width: 0 2px 2px 0;
+              display: inline-block;
+              padding: 3px;
+              transform: rotate(-45deg);
+              transition: 0.2s;
+              margin: 0px 5px 0px 5px;
+
+              &.expanding {
+                transform: rotate(45deg);
+              }
+            }
+          }
         }
       }
     }

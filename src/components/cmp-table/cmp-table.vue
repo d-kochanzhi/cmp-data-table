@@ -1,19 +1,20 @@
 <template>
   <div class="cmp-table" :class="[tableClassName]">
+    <div class="cmp-table__filter">
+      <slot
+        v-bind="{
+          filterModel: searchInput,
+          filterCallback: updateGlobalFilter,
+        }"
+        name="search-global">
+        <input
+          :placeholder="searchPlaceholder"
+          v-model="searchInput"
+          @keydown.enter="searchChange" />
+      </slot>
+    </div>
+
     <div class="cmp-table__main">
-      <div class="filter__global">
-        <slot
-          v-bind="{
-            filterModel: searchInput,
-            filterCallback: updateGlobalFilter,
-          }"
-          name="search-global">
-          <input
-            :placeholder="searchPlaceholder"
-            v-model="searchInput"
-            @keydown.enter="searchChange" />
-        </slot>
-      </div>
       <table>
         <caption v-if="props.caption">
           {{
@@ -63,64 +64,58 @@
             </th>
           </tr>
         </thead>
-        <tbody :class="{ 'row-alternation': alternating }">
+        <tbody :class="{ 'row-striped': striped }">
           <slot
             name="body-prepend"
             v-bind="{
               items: rowsForRender,
               headers: headersForRender,
             }" />
-          <template v-for="(item, row_index) in rowsForRender" :key="row_index">
-            <tr
-              :class="[{ 'even-row': (row_index + 1) % 2 === 0 }]"
-              @click="
-                ($event) => {
-                  clickRow(item, 'single', $event);
-                }
-              "
-              @dblclick="
-                ($event) => {
-                  clickRow(item, 'double', $event);
-                }
-              "
-              @contextmenu="
-                ($event) => {
-                  contextMenuRow(item, $event);
-                }
-              ">
-              <td v-if="showIndex">
-                <slot
-                  :name="`item-index`"
-                  v-bind="{
-                    item: item,
-                  }">
-                  {{
-                    row_index +
-                    1 +
-                    (viewOptionsComputed.page - 1) * viewOptionsComputed.rowsPerPage
-                  }}</slot
-                >
-              </td>
-              <td v-for="(column, col_index) in headersForRender" :key="col_index">
-                <slot
-                  v-if="slots[`item-${column.field}`]"
-                  :name="`item-${column.field}`"
-                  v-bind="{
-                    item: item,
-                    header: column,
-                  }" />
-                <slot
-                  v-else-if="slots[`item-${column.field.toLowerCase()}`]"
-                  :name="`item-${column.field.toLowerCase()}`"
-                  v-bind="{
-                    item: item,
-                    header: column,
-                  }" />
-                <template v-else>
-                  {{ generateColumnContent(column.field, item) }}
-                </template>
+          <template
+            v-if="expandableRowsRef.length > 0"
+            v-for="(group, group_index) in expandableRowsRef"
+            :key="group_index">
+            <tr class="expandable-row">
+              <td colspan="1000">
+                <div class="expandable__item" @click.stop="clickExpandableRow(group)">
+                  <i
+                    class="expand-icon"
+                    :class="[{ expanding: expandableRowsState.get(group) == 1 }]"></i>
+                  <span>{{ group }}</span>
+                </div>
               </td>
             </tr>
+            <template
+              v-if="expandableRowsState.get(group) == 1"
+              v-for="(item, row_index) in rowsForExpand(group)"
+              :key="row_index">
+              <cmpTableBodyRow
+                :view-options="viewOptionsComputed"
+                :headers="headersForRender"
+                :item="item"
+                :show-index="showIndex"
+                :rowIndex="row_index"
+                @click-row="clickRow"
+                @contextmenu-row="contextMenuRow">
+                <template v-for="(_, name) in $slots" #[name]="slotData">
+                  <slot :name="name" v-bind="slotData" />
+                </template>
+              </cmpTableBodyRow>
+            </template>
+          </template>
+          <template v-else v-for="(item, row_index) in rowsForRender" :key="row_index">
+            <cmpTableBodyRow
+              :view-options="viewOptionsComputed"
+              :headers="headersForRender"
+              :item="item"
+              :show-index="showIndex"
+              :rowIndex="row_index"
+              @click-row="clickRow"
+              @contextmenu-row="contextMenuRow">
+              <template v-for="(_, name) in $slots" #[name]="slotData">
+                <slot :name="name" v-bind="slotData" />
+              </template>
+            </cmpTableBodyRow>
           </template>
           <slot
             name="body-append"
@@ -209,7 +204,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, useSlots, toRefs, ref } from 'vue';
+import cmpTableBodyRow from './cmp-table-body-row.vue';
+import { PropType, computed, useSlots, toRefs, ref, reactive } from 'vue';
 import { Item, Header, ViewOptions } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
 import './scss/style.scss';
@@ -255,6 +251,8 @@ const props = defineProps({
 });
 
 const totalCountRef = ref(0);
+const expandableRowsRef = ref([]);
+const expandableRowsState = reactive<Map<string, number>>(new Map());
 
 const { viewOptions, headers, items } = toRefs(props);
 
@@ -288,6 +286,14 @@ const updateGlobalFilter = (event: Event) => {
 };
 /*---------------- */
 
+const clickExpandableRow = (group: string) => {
+  expandableRowsState.set(
+    group,
+    expandableRowsState.has(group) ? expandableRowsState.get(group)! * -1 : 1,
+  );
+};
+
+/* render  */
 const headersForRender = computed(() => {
   console.log('headersForRender');
   return headers.value.filter((i) => !i.hidden);
@@ -295,8 +301,19 @@ const headersForRender = computed(() => {
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
-  return getItemsForRender(items.value, totalCountRef);
+  return getItemsForRender(items.value, totalCountRef, expandableRowsRef);
 });
+
+const rowsForExpand = (groupValue: string) => {
+  if (expandableRowsRef.value.length < 0) return [];
+
+  let groupFields = headers.value.filter((c) => c.expandable === true);
+
+  return rowsForRender.value.filter(
+    (item) => groupValue == generateColumnContent(groupFields[0].field, item),
+  );
+};
+/*---------------- */
 </script>
 
 <style>
@@ -311,7 +328,7 @@ const rowsForRender = computed(() => {
   --cmp-table-header-font-color: #373737;
 
   /*row*/
-  --cmp-table-row-even-color: #dddddd;
+  --cmp-table-row-even-color: #ece8e8;
 
   /* pagination */
   --active-page-color: #0e9d6e;

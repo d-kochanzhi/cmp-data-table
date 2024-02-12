@@ -102,7 +102,24 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
     return result;
   };
 
-  const getItemsForRender = (items: Array<Item>, total: Ref<number>) => {
+  const addIndexer = (items: Array<Item>) => {
+    let result = [...items];
+
+    result.map(
+      (i, index) =>
+        (i['_index'] =
+          index +
+          (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage),
+    );
+
+    return result;
+  };
+
+  const getItemsForRender = (
+    items: Array<Item>,
+    total: Ref<number>,
+    expandable: Ref<Array<string>>,
+  ) => {
     let result = [...items];
 
     result = getFilteredItems(result);
@@ -110,6 +127,16 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
 
     result = getOrderedItems(result);
     result = getPagedItems(result);
+
+    let groupFields = headersComputed.value.filter((c) => c.expandable === true);
+
+    if (groupFields.length > 0) {
+      result = addIndexer(result);
+
+      expandable.value = [
+        ...new Set(result.map((item) => getItemValue(groupFields[0].field, item))),
+      ];
+    }
 
     return result;
   };

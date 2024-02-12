@@ -10,7 +10,7 @@ export default {
     type: String,
     default: 'Search',
   },
-  alternating: {
+  striped: {
     type: Boolean,
     default: false,
   },

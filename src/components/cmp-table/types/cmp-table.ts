@@ -2,31 +2,21 @@
 
 export type SortType = 'asc' | 'desc' | 'none';
 
-//export type ColumnRenderFunction = (item: Item) => string;
-
 export type Header = {
   title: string;
   field: string;
   sortable?: boolean;
   filterable?: boolean;
   hidden?: boolean;
-  //fixed?: boolean;
   width?: number;
-  //formatter?: ColumnRenderFunction;
+  expandable?: boolean;
 };
 
 export type Item = Record<string, any>;
 
-export interface Table {
-  caption: string;
-  headers: Header[];
-  items: Item[];
-}
-
 export type ViewOptions = {
   page: number;
   rowsPerPage: number;
-  //total: number;
   orderBy: {
     [key: string]: SortType;
   };
