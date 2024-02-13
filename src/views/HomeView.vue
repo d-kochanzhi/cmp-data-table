@@ -9,14 +9,14 @@
       :items="items"
       :view-options="options"
       @click-row="rowClicked">
-      <!--
       <template #search-global="{ filterModel, filterCallback }">
+        <span>Поиск по таблице</span>
         <input
           type="text"
           :value="filterModel"
           @keydown.enter="filterCallback($event)"
-          placeholder="Search" />
-      </template>-->
+          placeholder="Введите значение" />
+      </template>
       <template #header-player="slotProps">
         <span> Колонка {{ slotProps.title }}</span>
       </template>

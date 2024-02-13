@@ -13,7 +13,9 @@
           filterCallback: updateGlobalFilter,
         }"
         name="search-global">
+        <i class="icon-filter"></i>
         <input
+          class="input-filter"
           :placeholder="searchPlaceholder"
           v-model="searchInput"
           @keydown.enter="searchChange" />
@@ -44,6 +46,7 @@
               :class="[
                 {
                   sortable: header.sortable,
+                  filterable: header.filterable,
                 },
                 getColSortStyle(header),
               ]"
