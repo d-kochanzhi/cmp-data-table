@@ -23,81 +23,99 @@
     </div>
 
     <div class="cmp-table__main">
-      <table>
-        <caption v-if="props.caption">
-          {{
-            props.caption
-          }}
-        </caption>
-        <colgroup>
-          <col v-if="showIndex" />
-          <col
-            v-for="(header, index) in headersForRender"
-            :key="index"
-            :style="getColStyle(header)" />
-        </colgroup>
-        <slot v-if="slots['customize-headers']" name="customize-headers" />
-        <thead v-else-if="headersForRender.length && !props.hideHeader">
-          <tr>
-            <th v-if="showIndex">#</th>
-            <th
+      <div
+        :class="[{ virtualscroller: scrollHeight > 0 }]"
+        :style="[{ height: scrollHeight > 0 ? scrollHeight + `px` : '100%' }]">
+        <table>
+          <caption v-if="props.caption">
+            {{
+              props.caption
+            }}
+          </caption>
+          <colgroup>
+            <col v-if="showIndex" />
+            <col
               v-for="(header, index) in headersForRender"
               :key="index"
-              :class="[
-                {
-                  sortable: header.sortable,
-                  filterable: header.filterable,
-                },
-                getColSortStyle(header),
-              ]"
-              @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
-              <span class="header" :class="`direction-${headerTextDirection}`">
-                <slot
-                  v-if="slots[`header-${header.field}`]"
-                  :name="`header-${header.field}`"
-                  v-bind="header" />
-                <slot
-                  v-else-if="slots[`header-${header.field.toLowerCase()}`]"
-                  :name="`header-${header.field.toLowerCase()}`"
-                  v-bind="header" />
-                <slot v-else-if="slots['header']" name="header" v-bind="header" />
-                <span v-else class="header-text">
-                  {{ header.title }}
-                </span>
-                <i
-                  v-if="header.sortable"
-                  :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
-                  class="sortType-icon"
-                  :class="getColSortStyle(header)"></i>
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody :class="{ 'row-striped': striped }">
-          <slot
-            name="body-prepend"
-            v-bind="{
-              items: rowsForRender,
-              headers: headersForRender,
-            }" />
-          <template
-            v-if="expandableRowsRef.length > 0"
-            v-for="(group, group_index) in expandableRowsRef"
-            :key="group_index">
-            <tr class="expandable-row">
-              <td colspan="1000">
-                <div class="expandable__item" @click.stop="clickExpandableRow(group)">
+              :style="getColStyle(header)" />
+          </colgroup>
+          <slot v-if="slots['customize-headers']" name="customize-headers" />
+          <thead v-else-if="headersForRender.length && !props.hideHeader">
+            <tr>
+              <th v-if="showIndex">#</th>
+              <th
+                v-for="(header, index) in headersForRender"
+                :key="index"
+                :class="[
+                  {
+                    sortable: header.sortable,
+                    filterable: header.filterable,
+                  },
+                  getColSortStyle(header),
+                ]"
+                @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
+                <span class="header" :class="`direction-${headerTextDirection}`">
+                  <slot
+                    v-if="slots[`header-${header.field}`]"
+                    :name="`header-${header.field}`"
+                    v-bind="header" />
+                  <slot
+                    v-else-if="slots[`header-${header.field.toLowerCase()}`]"
+                    :name="`header-${header.field.toLowerCase()}`"
+                    v-bind="header" />
+                  <slot v-else-if="slots['header']" name="header" v-bind="header" />
+                  <span v-else class="header-text">
+                    {{ header.title }}
+                  </span>
                   <i
-                    class="expand-icon"
-                    :class="[{ expanding: expandableRowsState.get(group) == 1 }]"></i>
-                  <span>{{ group }}</span>
-                </div>
-              </td>
+                    v-if="header.sortable"
+                    :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
+                    class="sortType-icon"
+                    :class="getColSortStyle(header)"></i>
+                </span>
+              </th>
             </tr>
+          </thead>
+          <tbody :class="{ 'row-striped': striped }">
+            <slot
+              name="body-prepend"
+              v-bind="{
+                items: rowsForRender,
+                headers: headersForRender,
+              }" />
             <template
-              v-if="expandableRowsState.get(group) == 1"
-              v-for="(item, row_index) in rowsForExpand(group)"
-              :key="row_index">
+              v-if="expandableRowsRef.length > 0"
+              v-for="(group, group_index) in expandableRowsRef"
+              :key="group_index">
+              <tr class="expandable-row">
+                <td colspan="1000">
+                  <div class="expandable__item" @click.stop="clickExpandableRow(group)">
+                    <i
+                      class="expand-icon"
+                      :class="[{ expanding: expandableRowsState.get(group) == 1 }]"></i>
+                    <span>{{ group }}</span>
+                  </div>
+                </td>
+              </tr>
+              <template
+                v-if="expandableRowsState.get(group) == 1"
+                v-for="(item, row_index) in rowsForExpand(group)"
+                :key="row_index">
+                <cmpTableBodyRow
+                  :view-options="viewOptionsComputed"
+                  :headers="headersForRender"
+                  :item="item"
+                  :show-index="showIndex"
+                  :rowIndex="row_index"
+                  @click-row="clickRow"
+                  @contextmenu-row="contextMenuRow">
+                  <template v-for="(_, name) in $slots" #[name]="slotData">
+                    <slot :name="name" v-bind="slotData" />
+                  </template>
+                </cmpTableBodyRow>
+              </template>
+            </template>
+            <template v-else v-for="(item, row_index) in rowsForRender" :key="row_index">
               <cmpTableBodyRow
                 :view-options="viewOptionsComputed"
                 :headers="headersForRender"
@@ -111,52 +129,38 @@
                 </template>
               </cmpTableBodyRow>
             </template>
-          </template>
-          <template v-else v-for="(item, row_index) in rowsForRender" :key="row_index">
-            <cmpTableBodyRow
-              :view-options="viewOptionsComputed"
-              :headers="headersForRender"
-              :item="item"
-              :show-index="showIndex"
-              :rowIndex="row_index"
-              @click-row="clickRow"
-              @contextmenu-row="contextMenuRow">
-              <template v-for="(_, name) in $slots" #[name]="slotData">
-                <slot :name="name" v-bind="slotData" />
-              </template>
-            </cmpTableBodyRow>
-          </template>
-          <slot
-            name="body-append"
-            v-bind="{
-              items: rowsForRender,
-              headers: headersForRender,
-            }" />
-        </tbody>
-        <slot v-if="slots['customize-footer']" name="customize-footer" />
-        <tfoot v-else-if="!props.hideFooter">
-          <tr>
-            <th v-if="showIndex"></th>
-            <td v-for="(column, col_index) in headersForRender" :key="col_index">
-              <slot
-                v-if="slots[`footer-item-${column.field}`]"
-                :name="`footer-item-${column.field}`"
-                v-bind="{
-                  items: rowsForRender,
-                  header: column,
-                }" />
-              <slot
-                v-else-if="slots[`footer-item-${column.field.toLowerCase()}`]"
-                :name="`footer-item-${column.field.toLowerCase()}`"
-                v-bind="{
-                  items: rowsForRender,
-                  header: column,
-                }" />
-              <template v-else> </template>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+            <slot
+              name="body-append"
+              v-bind="{
+                items: rowsForRender,
+                headers: headersForRender,
+              }" />
+          </tbody>
+          <slot v-if="slots['customize-footer']" name="customize-footer" />
+          <tfoot v-else-if="!props.hideFooter">
+            <tr>
+              <th v-if="showIndex"></th>
+              <td v-for="(column, col_index) in headersForRender" :key="col_index">
+                <slot
+                  v-if="slots[`footer-item-${column.field}`]"
+                  :name="`footer-item-${column.field}`"
+                  v-bind="{
+                    items: rowsForRender,
+                    header: column,
+                  }" />
+                <slot
+                  v-else-if="slots[`footer-item-${column.field.toLowerCase()}`]"
+                  :name="`footer-item-${column.field.toLowerCase()}`"
+                  v-bind="{
+                    items: rowsForRender,
+                    header: column,
+                  }" />
+                <template v-else> </template>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
     <nav class="cmp-table__paginator">
       <ul class="pagination">
@@ -263,7 +267,7 @@ const totalCountRef = ref(0);
 const expandableRowsRef = ref([]);
 const expandableRowsState = reactive<Map<string, number>>(new Map());
 
-const { viewOptions, headers, items } = toRefs(props);
+const { viewOptions, headers, items, scrollHeight } = toRefs(props);
 
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {

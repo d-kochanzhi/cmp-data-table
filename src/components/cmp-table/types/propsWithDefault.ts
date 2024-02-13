@@ -50,4 +50,8 @@ export default {
     type: String as PropType<TextDirection>,
     default: 'left',
   },
+  scrollHeight: {
+    type: Number,
+    default: 0,
+  },
 };

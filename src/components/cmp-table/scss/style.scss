@@ -92,27 +92,50 @@ div.cmp-table__main {
   width: 100%;
   overflow: auto;
 
-  &::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background-color: var(--cmp-table-scrollbar-track-color);
+  .virtualscroller {
+    position: relative;
+    overflow: auto;
+    contain: strict;
+    transform: translateZ(0);
+    will-change: scroll-position;
+    outline: 0 none;
+
+    thead {
+      position: sticky;
+
+      th {
+        position: sticky;
+        top: 0px;
+        background: #ffffff;
+      }
+    }
+
+    tbody {
+      position: static;
+    }
+
+    &::-webkit-scrollbar-track {
+      border-radius: 10px;
+      background-color: var(--cmp-table-scrollbar-track-color);
+    }
+
+    &::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+      background-color: var(--cmp-table-scrollbar-color);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: var(--cmp-table-scrollbar-thumb-color);
+    }
+
+    &::-webkit-scrollbar-corner {
+      background-color: var(--cmp-table-scrollbar-corner-color);
+    }
   }
 
-  &::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-    background-color: var(--cmp-table-scrollbar-color);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: var(--cmp-table-scrollbar-thumb-color);
-  }
-
-  &::-webkit-scrollbar-corner {
-    background-color: var(--cmp-table-scrollbar-corner-color);
-  }
-
-  > table {
+  table {
     border-spacing: 0px;
     width: 100%;
 
@@ -126,6 +149,8 @@ div.cmp-table__main {
         height: var(--cmp-table-header-height);
       }
       th {
+        // position: sticky;
+        //top: 0;
         position: relative;
         color: var(--cmp-table-header-font-color);
 
