@@ -1,5 +1,11 @@
 <template>
   <div class="cmp-table" :class="[tableClassName]">
+    <div v-if="loading" class="loading-overlay">
+      <slot v-if="slots['loading']" name="loading"></slot>
+      <template v-else>
+        <span class="loader"></span>
+      </template>
+    </div>
     <div class="cmp-table__filter">
       <slot
         v-bind="{

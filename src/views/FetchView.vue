@@ -5,7 +5,8 @@
       :headers="headers"
       :items="items"
       :view-options="options"
-      :striped="true">
+      :striped="true"
+      :loading="loading">
     </cmpTable>
   </div>
 </template>
@@ -14,6 +15,8 @@
 import cmpTable from '@/components/cmp-table/cmp-table.vue';
 import { Header, Item, ViewOptions } from '@/components/cmp-table/types/cmp-table';
 import { onMounted, ref } from 'vue';
+
+const loading = ref<boolean>(false);
 
 const options = ref<ViewOptions>({
   page: 1,
@@ -33,8 +36,10 @@ const headers = ref<Header[]>([
 const items = ref<Item[]>([]);
 
 onMounted(() => {
+  loading.value = true;
   fetch('https://jsonplaceholder.typicode.com/users')
     .then((response) => response.json())
-    .then((json) => (items.value = [...json]));
+    .then((json) => (items.value = [...json]))
+    .then(() => (loading.value = false));
 });
 </script>
