@@ -1,6 +1,11 @@
 <template>
   <div class="Fetch">
-    <cmpTable show-index :headers="headers" :items="items" :view-options="options">
+    <cmpTable
+      show-index
+      :headers="headers"
+      :items="items"
+      :view-options="options"
+      :striped="true">
     </cmpTable>
   </div>
 </template>

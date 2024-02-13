@@ -107,11 +107,15 @@ div.cmp-table__main {
     }
 
     > tbody {
-      > tr {
-        &.even-row {
-          background-color: var(--cmp-table-row-even-color);
+      &.row-striped {
+        > tr {
+          &.even-row {
+            background-color: var(--cmp-table-row-even-color);
+          }
         }
+      }
 
+      > tr {
         &.expandable-row {
           font-weight: bold;
           cursor: pointer;
