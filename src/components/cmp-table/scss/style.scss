@@ -92,6 +92,26 @@ div.cmp-table__main {
   width: 100%;
   overflow: auto;
 
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: var(--cmp-table-scrollbar-track-color);
+  }
+
+  &::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+    background-color: var(--cmp-table-scrollbar-color);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--cmp-table-scrollbar-thumb-color);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background-color: var(--cmp-table-scrollbar-corner-color);
+  }
+
   .virtualscroller {
     position: relative;
     overflow: auto;
