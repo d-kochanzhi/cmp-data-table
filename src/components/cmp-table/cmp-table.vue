@@ -24,8 +24,19 @@
 
     <div class="cmp-table__main">
       <div
-        :class="[{ virtualscroller: scrollHeight > 0 }]"
-        :style="[{ height: scrollHeight > 0 ? scrollHeight + `px` : '100%' }]">
+        :class="[
+          {
+            virtualscroller: scrollHeight > 0 || scrollWidth > 0,
+            vertical: scrollHeight > 0,
+            horizontal: scrollWidth > 0,
+          },
+        ]"
+        :style="[
+          {
+            height: scrollHeight > 0 ? scrollHeight + `px` : '100%',
+            width: scrollWidth > 0 ? scrollWidth + `px` : '100%',
+          },
+        ]">
         <table>
           <caption v-if="props.caption">
             {{
@@ -267,7 +278,7 @@ const totalCountRef = ref(0);
 const expandableRowsRef = ref([]);
 const expandableRowsState = reactive<Map<string, number>>(new Map());
 
-const { viewOptions, headers, items, scrollHeight } = toRefs(props);
+const { viewOptions, headers, items, scrollHeight, scrollWidth } = toRefs(props);
 
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {
@@ -331,6 +342,9 @@ const rowsForExpand = (groupValue: string) => {
 
 <style>
 :root {
+  /* root */
+  --cmp-table-background-color: #fff;
+
   /*scroll-bar*/
   --cmp-table-scrollbar-track-color: #fff;
   --cmp-table-scrollbar-color: #fff;

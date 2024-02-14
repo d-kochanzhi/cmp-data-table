@@ -95,23 +95,51 @@ div.cmp-table__main {
   .virtualscroller {
     position: relative;
     overflow: auto;
-    contain: strict;
-    transform: translateZ(0);
+    contain: content;
     will-change: scroll-position;
     outline: 0 none;
 
-    thead {
-      position: sticky;
-
-      th {
+    &.vertical {
+      thead {
         position: sticky;
-        top: 0px;
-        background: #ffffff;
+
+        th {
+          position: sticky;
+          top: 0px;
+          background-color: var(--cmp-table-background-color);
+          z-index: 1;
+        }
+      }
+      tbody {
+        position: static;
       }
     }
 
-    tbody {
-      position: static;
+    &.horizontal {
+      thead {
+        tr {
+          th {
+            &:first-child {
+              position: sticky;
+              left: 0px;
+              background-color: var(--cmp-table-background-color);
+              z-index: 1;
+            }
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            &:first-child {
+              position: sticky;
+              left: 0px;
+              background-color: var(--cmp-table-background-color);
+              z-index: 1;
+            }
+          }
+        }
+      }
     }
 
     &::-webkit-scrollbar-track {

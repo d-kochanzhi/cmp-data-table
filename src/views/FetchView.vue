@@ -5,7 +5,7 @@
       :headers="headers"
       :items="items"
       :view-options="options"
-      :striped="true"
+      striped
       :loading="loading">
     </cmpTable>
   </div>
