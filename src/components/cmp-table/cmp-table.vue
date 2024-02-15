@@ -52,6 +52,12 @@
           </colgroup>
           <slot v-if="slots['customize-headers']" name="customize-headers" />
           <thead v-else-if="headersForRender.length && !props.hideHeader">
+            <slot
+              name="header-prepend"
+              v-bind="{
+                items: rowsForRender,
+                headers: headersForRender,
+              }" />
             <tr>
               <th v-if="showIndex">#</th>
               <th
@@ -59,12 +65,16 @@
                 :key="index"
                 :class="[
                   {
-                    sortable: header.sortable,
-                    filterable: header.filterable,
+                    sortable: valueOrDefault(header.sortable, true),
+                    filterable: valueOrDefault(header.filterable, true),
                   },
                   getColSortStyle(header),
                 ]"
-                @click="header.sortable ? updateViewOptionsOrderBy(header.field) : null">
+                @click="
+                  valueOrDefault(header.sortable, true)
+                    ? updateViewOptionsOrderBy(header.field)
+                    : null
+                ">
                 <span class="header" :class="`direction-${headerTextDirection}`">
                   <slot
                     v-if="slots[`header-${header.field}`]"
@@ -79,13 +89,19 @@
                     {{ header.title }}
                   </span>
                   <i
-                    v-if="header.sortable"
+                    v-if="valueOrDefault(header.sortable, true)"
                     :key="viewOptionsComputed.orderBy[header.field] ?? 'none'"
                     class="sortType-icon"
                     :class="getColSortStyle(header)"></i>
                 </span>
               </th>
             </tr>
+            <slot
+              name="header-append"
+              v-bind="{
+                items: rowsForRender,
+                headers: headersForRender,
+              }" />
           </thead>
           <tbody :class="{ 'row-striped': striped }">
             <slot
@@ -238,6 +254,7 @@ import useItems from './useUtils/useItems';
 import useEmits from './useUtils/useEmits';
 import useViewOptions from './useUtils/useViewOptions';
 import usePaging from './useUtils/usePaging';
+import useUtils from './useUtils/useUtils';
 
 // slot
 const slots = useSlots();
@@ -301,6 +318,8 @@ const {
   getPageListForRender,
 } = usePaging(viewOptionsComputed, totalCountRef);
 
+const { valueOrDefault } = useUtils();
+
 /* global filter */
 const searchInput = ref('');
 const searchChange = () => updateViewOptionsWhere(searchInput.value);
@@ -338,6 +357,11 @@ const rowsForExpand = (groupValue: string) => {
   );
 };
 /*---------------- */
+
+defineExpose({
+  // expose main functionality
+  updateGlobalFilter,
+});
 </script>
 
 <style>
@@ -355,7 +379,7 @@ const rowsForExpand = (groupValue: string) => {
   --cmp-table-header-font-color: #373737;
 
   /*row*/
-  --cmp-table-row-even-color: #ece8e8;
+  --cmp-table-row-even-color: ghostwhite;
 
   /* pagination */
   --active-page-color: #0e9d6e;

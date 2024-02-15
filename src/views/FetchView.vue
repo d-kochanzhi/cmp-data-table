@@ -1,12 +1,22 @@
 <template>
   <div class="Fetch">
     <cmpTable
+      ref="tableRef"
       show-index
       :headers="headers"
       :items="items"
       :view-options="options"
       striped
       :loading="loading">
+      <template #header-prepend>
+        <tr>
+          <th></th>
+          <th colspan="2" style="background-color: ghostwhite">Пользователь</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </template>
     </cmpTable>
   </div>
 </template>
@@ -15,6 +25,8 @@
 import cmpTable from '@/components/cmp-table/cmp-table.vue';
 import { Header, Item, ViewOptions } from '@/components/cmp-table/types/cmp-table';
 import { onMounted, ref } from 'vue';
+
+const tableRef = ref<InstanceType<typeof cmpTable>>();
 
 const loading = ref<boolean>(false);
 
@@ -26,11 +38,11 @@ const options = ref<ViewOptions>({
 });
 
 const headers = ref<Header[]>([
-  { title: 'name', field: 'name', sortable: true, filterable: true },
-  { title: 'username', field: 'username', sortable: true, filterable: true },
-  { title: 'email', field: 'email', sortable: true, filterable: true },
-  { title: 'website', field: 'website', sortable: true, filterable: true },
-  { title: 'address', field: 'address.city', sortable: true, filterable: true },
+  { title: 'name', field: 'name' },
+  { title: 'username', field: 'username' },
+  { title: 'email', field: 'email' },
+  { title: 'website', field: 'website', sortable: false },
+  { title: 'address', field: 'address.city' },
 ]);
 
 const items = ref<Item[]>([]);

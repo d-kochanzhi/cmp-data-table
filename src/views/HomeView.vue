@@ -40,9 +40,9 @@ const options = ref<ViewOptions>({
 });
 
 const headers = ref<Header[]>([
-  { title: 'player', field: 'player', width: 250, filterable: true },
+  { title: 'player', field: 'player', width: 250 },
   { title: 'team', field: 'team', sortable: true, expandable: true },
-  { title: 'number', field: 'number', sortable: true },
+  { title: 'number', field: 'number' },
   { title: 'indicator', field: 'indicator.weight' },
   { title: 'country', field: 'country' },
 ]);

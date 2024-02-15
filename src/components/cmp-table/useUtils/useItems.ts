@@ -57,7 +57,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getColSortStyle = (header: Header): string => {
-    if (header.sortable) return viewOptionsComputed.value.orderBy[header.field] || 'none';
+    if (header.sortable ?? true)
+      return viewOptionsComputed.value.orderBy[header.field] || 'none';
     return 'none';
   };
 
