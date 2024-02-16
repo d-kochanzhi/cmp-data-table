@@ -1,5 +1,6 @@
 import { Header, Item, ViewOptions, SortType } from '../types/cmp-table';
 import { computed, reactive, ref, Ref } from 'vue';
+import { getProps, valueOrDefault } from './useUtils';
 
 export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Header[]>) {
   const viewOptionsComputed = computed((): ViewOptions => {
@@ -57,7 +58,7 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getColSortStyle = (header: Header): string => {
-    if (header.sortable ?? true)
+    if (valueOrDefault(header.sortable, true))
       return viewOptionsComputed.value.orderBy[header.field] || 'none';
     return 'none';
   };
@@ -83,22 +84,42 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getFilteredItems = (items: Array<Item>) => {
-    if (!viewOptionsComputed.value.where['g']) return items;
+    let whereKeys = getProps(viewOptionsComputed.value.where);
+    if (whereKeys.size <= 0) return items;
 
     let result: Array<Item> = [];
-    headersComputed.value
-      .filter((c) => c.filterable)
-      .forEach((c) => {
-        result = [
-          ...result,
-          ...items.filter(
-            (i) =>
-              String(generateColumnContent(c.field, i))
-                .toLowerCase()
-                .indexOf(viewOptionsComputed.value.where['g'].toLowerCase()) > -1,
-          ),
-        ];
-      });
+
+    /* global search across all fields */
+    if (whereKeys.has('_g')) {
+      result = [
+        ...items.filter((i) => {
+          return headersComputed.value
+            .filter((c) => valueOrDefault(c.filterable, true))
+            .some((c) => {
+              return (
+                String(generateColumnContent(c.field, i))
+                  .toLowerCase()
+                  .indexOf(viewOptionsComputed.value.where['_g'].toLowerCase()) > -1
+              );
+            });
+        }),
+      ];
+      whereKeys.delete('_g');
+    } else {
+      result = [...items];
+    }
+
+    /*  quick search by fields */
+    whereKeys.forEach((value, key) => {
+      result = [
+        ...result.filter(
+          (i) =>
+            String(generateColumnContent(key, i))
+              .toLowerCase()
+              .indexOf(value.toLowerCase()) > -1,
+        ),
+      ];
+    });
 
     return result;
   };

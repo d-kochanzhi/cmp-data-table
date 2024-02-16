@@ -23,6 +23,7 @@
       <template #item-player="slotProps">
         <span> Игрок {{ slotProps.item[slotProps.header.field] }}</span>
       </template>
+      <template #expandable-row="slotProps"> team {{ slotProps.group }} </template>
     </cmpTable>
   </div>
 </template>

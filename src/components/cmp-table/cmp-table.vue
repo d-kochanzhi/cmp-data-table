@@ -102,6 +102,23 @@
                 items: rowsForRender,
                 headers: headersForRender,
               }" />
+            <tr>
+              <th v-if="showIndex"></th>
+              <th
+                v-for="(header, index) in headersForRender"
+                :key="index"
+                class="header-quickFilter">
+                <div v-if="valueOrDefault(header.filterable, true)">
+                  <input
+                    class="text-filter"
+                    type="text"
+                    v-model="quickFilters[header.field]"
+                    @keydown.enter="
+                      updateQuickFilter(header.field, quickFilters[header.field])
+                    " />
+                </div>
+              </th>
+            </tr>
           </thead>
           <tbody :class="{ 'row-striped': striped }">
             <slot
@@ -120,7 +137,13 @@
                     <i
                       class="expand-icon"
                       :class="[{ expanding: expandableRowsState.get(group) == 1 }]"></i>
-                    <span>{{ group }}</span>
+                    <slot
+                      :name="`expandable-row`"
+                      v-bind="{
+                        group: group,
+                      }">
+                      <span>{{ group }}</span>
+                    </slot>
                   </div>
                 </td>
               </tr>
@@ -254,7 +277,7 @@ import useItems from './useUtils/useItems';
 import useEmits from './useUtils/useEmits';
 import useViewOptions from './useUtils/useViewOptions';
 import usePaging from './useUtils/usePaging';
-import useUtils from './useUtils/useUtils';
+import { valueOrDefault } from './useUtils/useUtils';
 
 // slot
 const slots = useSlots();
@@ -292,8 +315,6 @@ const props = defineProps({
 });
 
 const totalCountRef = ref(0);
-const expandableRowsRef = ref([]);
-const expandableRowsState = reactive<Map<string, number>>(new Map());
 
 const { viewOptions, headers, items, scrollHeight, scrollWidth } = toRefs(props);
 
@@ -318,16 +339,9 @@ const {
   getPageListForRender,
 } = usePaging(viewOptionsComputed, totalCountRef);
 
-const { valueOrDefault } = useUtils();
-
-/* global filter */
-const searchInput = ref('');
-const searchChange = () => updateViewOptionsWhere(searchInput.value);
-const updateGlobalFilter = (event: Event) => {
-  searchInput.value = (event.target as HTMLInputElement).value;
-  searchChange();
-};
-/*---------------- */
+/* expandable  */
+const expandableRowsRef = ref([]);
+const expandableRowsState = reactive<Map<string, number>>(new Map());
 
 const clickExpandableRow = (group: string) => {
   expandableRowsState.set(
@@ -335,6 +349,20 @@ const clickExpandableRow = (group: string) => {
     expandableRowsState.has(group) ? expandableRowsState.get(group)! * -1 : 1,
   );
 };
+
+/* global filter */
+const searchInput = ref('');
+const searchChange = () => updateViewOptionsWhere('_g', searchInput.value);
+const updateGlobalFilter = (event: Event) => {
+  searchInput.value = (event.target as HTMLInputElement).value;
+  searchChange();
+};
+
+/* quick filter */
+
+const quickFilters = reactive<{ [key: string]: any }>({});
+const updateQuickFilter = (field: string, value: string) =>
+  updateViewOptionsWhere(field, value);
 
 /* render  */
 const headersForRender = computed(() => {
@@ -347,6 +375,9 @@ const rowsForRender = computed(() => {
   return getItemsForRender(items.value, totalCountRef, expandableRowsRef);
 });
 
+/**
+ * get items by expandable group name
+ */
 const rowsForExpand = (groupValue: string) => {
   if (expandableRowsRef.value.length < 0) return [];
 
@@ -360,7 +391,8 @@ const rowsForExpand = (groupValue: string) => {
 
 defineExpose({
   // expose main functionality
-  updateGlobalFilter,
+  rowsForExpand,
+  updateQuickFilter,
 });
 </script>
 

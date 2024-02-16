@@ -67,10 +67,10 @@ export default function useViewOptions(
     }
   };
 
-  const updateViewOptionsWhere = (searchString: string) => {
+  const updateViewOptionsWhere = (field: string, value: string) => {
     if (viewOptionsComputed.value) {
       viewOptionsComputed.value.page = 1;
-      viewOptionsComputed.value.where['g'] = searchString;
+      viewOptionsComputed.value.where[field] = value;
 
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,

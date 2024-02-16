@@ -41,7 +41,7 @@ const headers = ref<Header[]>([
   { title: 'name', field: 'name' },
   { title: 'username', field: 'username' },
   { title: 'email', field: 'email' },
-  { title: 'website', field: 'website', sortable: false },
+  { title: 'website', field: 'website', sortable: false, filterable: false },
   { title: 'address', field: 'address.city' },
 ]);
 

@@ -21,7 +21,6 @@
       border-bottom-color: transparent;
       border-radius: 50%;
       display: inline-block;
-      box-sizing: border-box;
       animation: rotation 1s linear infinite;
     }
 
@@ -49,7 +48,7 @@ div.cmp-table__filter {
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s,
       outline-color 0.2s;
     appearance: none;
-    border-radius: 6px;
+    border-radius: 5px;
     padding-left: 2rem;
   }
   .icon-filter {
@@ -207,6 +206,19 @@ div.cmp-table__main {
         font-weight: 600;
         transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s,
           outline-color 0.2s;
+
+        &.header-quickFilter {
+          font-size: 1rem;
+
+          input.text-filter {
+            color: #334155;
+            padding: 0.2rem 0.2rem;
+            border: 1px solid #cbd5e1;
+            appearance: none;
+            border-radius: 3px;
+            width: 100%;
+          }
+        }
 
         .header {
           display: flex;
