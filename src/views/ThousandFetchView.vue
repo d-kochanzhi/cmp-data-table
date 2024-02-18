@@ -49,7 +49,7 @@ const items = ref<Item[]>([]);
 
 onMounted(() => {
   loading.value = true;
-  fetch('/data/1000.json', {
+  fetch('/data/10000.json', {
     headers: {
       'Content-Type': 'application/json',
     },

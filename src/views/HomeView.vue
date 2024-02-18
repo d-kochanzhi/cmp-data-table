@@ -14,7 +14,7 @@
         <input
           type="text"
           :value="filterModel"
-          @keydown.enter="filterCallback($event)"
+          @keydown.enter="filterCallback(($event.target as HTMLInputElement).value)"
           placeholder="Введите значение" />
       </template>
       <template #header-player="slotProps">

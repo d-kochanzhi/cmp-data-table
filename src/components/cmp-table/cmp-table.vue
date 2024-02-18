@@ -353,8 +353,8 @@ const clickExpandableRow = (group: string) => {
 /* global filter */
 const searchInput = ref('');
 const searchChange = () => updateViewOptionsWhere('_g', searchInput.value);
-const updateGlobalFilter = (event: Event) => {
-  searchInput.value = (event.target as HTMLInputElement).value;
+const updateGlobalFilter = (value: string) => {
+  searchInput.value = value;
   searchChange();
 };
 
@@ -393,6 +393,7 @@ defineExpose({
   // expose main functionality
   rowsForExpand,
   updateQuickFilter,
+  updateGlobalFilter,
 });
 </script>
 
