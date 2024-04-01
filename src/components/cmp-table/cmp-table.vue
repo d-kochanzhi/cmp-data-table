@@ -132,7 +132,7 @@
               v-for="(group, group_index) in expandableRowsRef"
               :key="group_index">
               <tr class="expandable-row">
-                <td colspan="1000">
+                <td :colspan="fullColspan">
                   <div class="expandable__item" @click.stop="clickExpandableRow(group)">
                     <i
                       class="expand-icon"
@@ -179,6 +179,17 @@
                 </template>
               </cmpTableBodyRow>
             </template>
+            <template v-if="showEmptySlot">
+              <tr>
+                <td :colspan="fullColspan">
+                  <slot name="emptystate">
+                    <div class="vgt-center-align vgt-text-disabled">
+                      No data for table
+                    </div>
+                  </slot>
+                </td>
+              </tr>
+            </template>
             <slot
               name="body-append"
               v-bind="{
@@ -186,6 +197,7 @@
                 headers: headersForRender,
               }" />
           </tbody>
+
           <slot v-if="slots['customize-footer']" name="customize-footer" />
           <tfoot v-else-if="!props.hideFooter">
             <tr>
@@ -375,6 +387,17 @@ const rowsForRender = computed(() => {
   return getItemsForRender(items.value, totalCountRef, expandableRowsRef);
 });
 
+const fullColspan = computed(() => {
+  let fullColspan = headersForRender.value.length;
+  if (props.showIndex) fullColspan++;
+  //if (this.selectable) fullColspan++;  TODO
+  return fullColspan;
+});
+
+const showEmptySlot = computed(() => {
+  return rowsForRender.value.length < 1 && items.value.length > 0;
+});
+
 /**
  * get items by expandable group name
  */
@@ -394,6 +417,7 @@ defineExpose({
   rowsForExpand,
   updateQuickFilter,
   updateGlobalFilter,
+  showEmptySlot,
 });
 </script>
 

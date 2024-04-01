@@ -10,13 +10,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/fetch',
     name: 'fetch',
-    component: () => import(/* webpackChunkName: "about" */ '../views/FetchView.vue'),
+    component: () => import('../views/FetchView.vue'),
   },
   {
     path: '/thousand',
     name: 'thousand',
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/ThousandFetchView.vue'),
+    component: () => import('../views/ThousandFetchView.vue'),
   },
 ];
 

@@ -163,6 +163,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
     return result;
   };
 
+
+
   return {
     generateColumnContent,
     getColStyle,
