@@ -4,6 +4,10 @@
 
 cmp-table is simple but cusomizable data table.
 
+## Demo online
+
+[here](https://d-kochanzhi.github.io/cmp-data-table/)
+
 ## Features
 
 - sorting
