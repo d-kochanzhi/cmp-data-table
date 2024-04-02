@@ -182,10 +182,8 @@
             <template v-if="showEmptySlot">
               <tr>
                 <td :colspan="fullColspan">
-                  <slot name="emptystate">
-                    <div class="vgt-center-align vgt-text-disabled">
-                      No data for table
-                    </div>
+                  <slot name="empty-row">
+                    <div>No data for table</div>
                   </slot>
                 </td>
               </tr>

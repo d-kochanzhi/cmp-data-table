@@ -11,7 +11,7 @@
       <template #header-prepend>
         <tr>
           <th></th>
-          <th colspan="2" style="background-color: ghostwhite">Пользователь</th>
+          <th colspan="2" style="background-color: ghostwhite">User</th>
           <th></th>
           <th></th>
           <th></th>

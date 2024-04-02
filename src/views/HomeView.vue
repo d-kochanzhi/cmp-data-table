@@ -1,8 +1,8 @@
 <template>
   <div class="about">
     <cmpTable
-      :caption="`Это таблица`"
-      :search-placeholder="`Поиск`"
+      :caption="`This is a table`"
+      :search-placeholder="`Search`"
       show-index
       :hideFooter="false"
       :headers="headers"
@@ -10,18 +10,18 @@
       :view-options="options"
       @click-row="rowClicked">
       <template #search-global="{ filterModel, filterCallback }">
-        <span>Поиск по таблице</span>
+        <span>Custom global search template</span>
         <input
           type="text"
           :value="filterModel"
           @keydown.enter="filterCallback(($event.target as HTMLInputElement).value)"
-          placeholder="Введите значение" />
+          placeholder="value" />
       </template>
       <template #header-player="slotProps">
-        <span> Колонка {{ slotProps.title }}</span>
+        <span> Column {{ slotProps.title }}</span>
       </template>
       <template #item-player="slotProps">
-        <span> Игрок {{ slotProps.item[slotProps.header.field] }}</span>
+        <span> Player {{ slotProps.item[slotProps.header.field] }}</span>
       </template>
       <template #expandable-row="slotProps"> team {{ slotProps.group }} </template>
     </cmpTable>

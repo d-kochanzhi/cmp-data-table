@@ -72,6 +72,7 @@ row slots
 | expandable-row| expandable row slot|
 | item-index| customize index cell |
 | item-{YourFieldName}| td cell slot|
+| empty-row| empty message row slot|
 | body-append| last slot in TBODY|
 
 ## events
