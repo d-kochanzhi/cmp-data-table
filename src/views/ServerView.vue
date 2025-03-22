@@ -70,6 +70,7 @@ const fetchFunction = ref<FetchFunction>(async (params:ViewOptions) => {
 
 const headers = ref<Header[]>([
   { title: 'id', field: 'id', width: 50  },
+  { title: 'category', field: 'category', width: 100 },
   { title: 'title', field: 'title'}, 
 ]);
 
