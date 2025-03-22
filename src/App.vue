@@ -2,7 +2,8 @@
   <nav>
     <router-link to="/">Basic</router-link> |
     <router-link to="/fetch">Fetch</router-link> |
-    <router-link to="/thousand">10 Thousand</router-link>
+    <router-link to="/thousand">10 Thousand</router-link> |
+    <router-link to="/server">Server</router-link>
   </nav>
   <router-view />
 </template>

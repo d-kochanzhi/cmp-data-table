@@ -183,7 +183,7 @@
               <tr>
                 <td :colspan="fullColspan">
                   <slot name="empty-row">
-                    <div>No data for table</div>
+                    <div>{{props.emptyMessage}}</div>
                   </slot>
                 </td>
               </tr>
@@ -278,8 +278,8 @@
 
 <script setup lang="ts">
 import cmpTableBodyRow from './cmp-table-body-row.vue';
-import { PropType, computed, useSlots, toRefs, ref, reactive } from 'vue';
-import { Item, Header, ViewOptions } from './types/cmp-table';
+import { PropType, computed, useSlots, toRefs, ref, reactive, watch, toRef } from 'vue';
+import { Item, Header, ViewOptions, ServerOptions, FetchFunction, DEFAULT_SERVER_OPTIONS, DEFAULT_VIEW_OPTIONS } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
 import './scss/style.scss';
 
@@ -288,6 +288,7 @@ import useEmits from './useUtils/useEmits';
 import useViewOptions from './useUtils/useViewOptions';
 import usePaging from './useUtils/usePaging';
 import { valueOrDefault } from './useUtils/useUtils';
+import useServer from './useUtils/useServer';
 
 // slot
 const slots = useSlots();
@@ -313,20 +314,22 @@ const props = defineProps({
   viewOptions: {
     type: Object as PropType<ViewOptions>,
     required: false,
-    default: () => {
-      return {
-        page: 1,
-        rowsPerPage: 25,
-        orderBy: {},
-        where: {},
-      };
-    },
+    default: () => DEFAULT_VIEW_OPTIONS,
+  },
+  serverOptions: {
+    type: Object as PropType<ServerOptions>,
+    required: false,
+    default: () => DEFAULT_SERVER_OPTIONS,
+  },
+  fetchFunction: {
+    type: Function as PropType<FetchFunction>,
+    required: false,
   },
 });
 
 const totalCountRef = ref(0);
 
-const { viewOptions, headers, items, scrollHeight, scrollWidth } = toRefs(props);
+const { viewOptions, headers, items, scrollHeight, scrollWidth, loading, serverOptions } = toRefs(props);
 
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {
@@ -338,7 +341,7 @@ const {
 } = useViewOptions(viewOptions, emits);
 
 const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } =
-  useItems(viewOptionsComputed, headers);
+  useItems(viewOptionsComputed, headers, serverOptions);
 
 const {
   isFirstPage,
@@ -349,6 +352,11 @@ const {
   getPageListForRender,
 } = usePaging(viewOptionsComputed, totalCountRef);
 
+const { fetchServerData } = useServer(
+  viewOptionsComputed,
+  serverOptions,
+  props.fetchFunction
+);
 /* expandable  */
 const expandableRowsRef = ref([]);
 const expandableRowsState = reactive<Map<string, number>>(new Map());
@@ -408,6 +416,33 @@ const rowsForExpand = (groupValue: string) => {
     (item) => groupValue == generateColumnContent(groupFields[0].field, item),
   );
 };
+
+const loadServerData = async () => {
+  const response = await fetchServerData();
+  if (response) {
+    emits('update:items', response.items);
+    totalCountRef.value = response.total;
+  }
+}
+
+
+// Следим за изменениями параметров для серверной обработки
+watch(
+  [
+    () => viewOptionsComputed.value.page,
+    () => viewOptionsComputed.value.rowsPerPage,
+    () => viewOptionsComputed.value.orderBy,
+    () => viewOptionsComputed.value.where,
+  ],
+  async () => {
+    if (serverOptions.value.enabled) {
+      console.log('fetchServerData');
+      await loadServerData();
+    }
+  },
+  { deep: true }
+);
+
 /*---------------- */
 
 defineExpose({
@@ -416,6 +451,7 @@ defineExpose({
   updateQuickFilter,
   updateGlobalFilter,
   showEmptySlot,
+  loadServerData,
 });
 </script>
 

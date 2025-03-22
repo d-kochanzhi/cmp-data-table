@@ -25,6 +25,35 @@ export type ViewOptions = {
   };
 };
 
+export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
+  page: 1,
+  rowsPerPage: 25,
+  orderBy: {},
+  where: {},
+};
+
+export type ServerOptions = {
+  enabled: boolean;
+  url?: string;
+  method?: 'GET' | 'POST';
+  headers?: Record<string, string>;
+  params?: Record<string, any>;
+};
+
+export const DEFAULT_SERVER_OPTIONS: ServerOptions = {
+  enabled: false,
+  url: '',
+  method: 'GET',
+  headers: {},
+  params: {},
+};
+
+
+export type FetchFunction = (params: ViewOptions) => Promise<{
+  items: Item[];
+  total: number;
+}>;
+
 export type ClickEventType = 'single' | 'double';
 
 export type EmitsEventName =

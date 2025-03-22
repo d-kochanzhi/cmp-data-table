@@ -1,14 +1,22 @@
-import { Header, Item, ViewOptions, SortType } from '../types/cmp-table';
+import { Header, Item, ViewOptions, SortType, ServerOptions, DEFAULT_SERVER_OPTIONS } from '../types/cmp-table';
 import { computed, reactive, ref, Ref } from 'vue';
 import { getProps, valueOrDefault } from './useUtils';
 
-export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Header[]>) {
+export default function useItems(
+  viewOptions: Ref<ViewOptions>,
+  headers: Ref<Header[]>,
+  serverOptions?: Ref<ServerOptions>
+) {
   const viewOptionsComputed = computed((): ViewOptions => {
     return viewOptions.value;
   });
 
   const headersComputed = computed((): Header[] => {
     return headers.value;
+  });
+
+  const serverOptionsComputed = computed((): ServerOptions => {
+    return serverOptions?.value || DEFAULT_SERVER_OPTIONS;
   });
 
   const getItemValue = function (column: string, item: Item) {
@@ -41,6 +49,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const sortItemsFunc = function (field: string, sortType: SortType, a: Item, b: Item) {
+    if (serverOptionsComputed.value?.enabled) return 0;
+
     const valA = generateColumnContent(field, a);
     const valB = generateColumnContent(field, b);
     if (sortType === 'asc') {
@@ -64,6 +74,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getPagedItems = (items: Array<Item>) => {
+    if (serverOptionsComputed.value?.enabled) return items;
+
     return items.slice(
       (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage,
       viewOptionsComputed.value.page * viewOptionsComputed.value.rowsPerPage,
@@ -71,6 +83,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getOrderedItems = (items: Array<Item>) => {
+    if (serverOptionsComputed.value?.enabled) return items;
+
     let sortKeys = Object.keys(viewOptionsComputed.value.orderBy);
     if (sortKeys.length > 0) {
       let result = [...items];
@@ -84,6 +98,8 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   };
 
   const getFilteredItems = (items: Array<Item>) => {
+    if (serverOptionsComputed.value?.enabled) return items;
+
     let whereKeys = getProps(viewOptionsComputed.value.where);
     if (whereKeys.size <= 0) return items;
 
@@ -129,9 +145,9 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
 
     result.map(
       (i, index) =>
-        (i['_index'] =
-          index +
-          (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage),
+      (i['_index'] =
+        index +
+        (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage),
     );
 
     return result;
@@ -144,11 +160,12 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
   ) => {
     let result = [...items];
 
-    result = getFilteredItems(result);
-    total.value = result.length;
-
-    result = getOrderedItems(result);
-    result = getPagedItems(result);
+    if (!serverOptionsComputed.value?.enabled) {
+      result = getFilteredItems(result);
+      total.value = result.length;
+      result = getOrderedItems(result);
+      result = getPagedItems(result);
+    }
 
     let groupFields = headersComputed.value.filter((c) => c.expandable === true);
 
@@ -162,8 +179,6 @@ export default function useItems(viewOptions: Ref<ViewOptions>, headers: Ref<Hea
 
     return result;
   };
-
-
 
   return {
     generateColumnContent,

@@ -1,5 +1,5 @@
 import { Ref, computed, reactive, ref } from 'vue';
-import { EmitsEventName, ViewOptions } from '../types/cmp-table';
+import { DEFAULT_VIEW_OPTIONS, EmitsEventName, ViewOptions } from '../types/cmp-table';
 import useEmits from './useEmits';
 
 export default function useViewOptions(
@@ -9,12 +9,7 @@ export default function useViewOptions(
   const { updateViewOptions } = useEmits(emits);
 
   const viewOptionsRef = ref(
-    viewOptions.value || {
-      page: 1,
-      rowsPerPage: 25,
-      orderBy: {},
-      where: {},
-    },
+    viewOptions.value || DEFAULT_VIEW_OPTIONS,
   );
 
   const viewOptionsComputed = computed({

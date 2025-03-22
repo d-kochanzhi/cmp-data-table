@@ -10,12 +10,15 @@
       :view-options="options"
       @click-row="rowClicked">
       <template #search-global="{ filterModel, filterCallback }">
-        <span>Custom global search template</span>
-        <input
-          type="text"
-          :value="filterModel"
-          @keydown.enter="filterCallback(($event.target as HTMLInputElement).value)"
-          placeholder="value" />
+        <div class="search-container">
+          <span>Custom global search template</span>
+          <input
+            type="text"
+            class="input-filter"
+            :value="filterModel"
+            @keydown.enter="filterCallback(($event.target as HTMLInputElement).value)"
+            placeholder="value" />
+        </div>
       </template>
       <template #header-player="slotProps">
         <span> Column {{ slotProps.title }}</span>
@@ -89,3 +92,14 @@ const rowClicked = (item: Item, event: Event) => {
   });
 };
 </script>
+
+<style scoped>
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+
+</style>

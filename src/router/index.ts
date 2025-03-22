@@ -17,6 +17,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'thousand',
     component: () => import('../views/ThousandFetchView.vue'),
   },
+  {
+    path: '/server',
+    name: 'server',
+    component: () => import('../views/ServerView.vue'),
+  },
 ];
 
 const router = createRouter({
