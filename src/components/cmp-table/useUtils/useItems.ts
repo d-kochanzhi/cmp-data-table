@@ -1,56 +1,22 @@
-import { Header, Item, ViewOptions, SortType, ServerOptions, DEFAULT_SERVER_OPTIONS } from '../types/cmp-table';
-import { computed, reactive, ref, Ref } from 'vue';
+import { Header, Item, ViewOptions, SortType } from '../types/cmp-table';
+import { Ref } from 'vue';
 import { getProps, valueOrDefault } from './useUtils';
+import useBaseItems from './useBaseItems';
 
 export default function useItems(
   viewOptions: Ref<ViewOptions>,
-  headers: Ref<Header[]>,
-  serverOptions?: Ref<ServerOptions>
+  headers: Ref<Header[]>
 ) {
-  const viewOptionsComputed = computed((): ViewOptions => {
-    return viewOptions.value;
-  });
-
-  const headersComputed = computed((): Header[] => {
-    return headers.value;
-  });
-
-  const serverOptionsComputed = computed((): ServerOptions => {
-    return serverOptions?.value || DEFAULT_SERVER_OPTIONS;
-  });
-
-  const getItemValue = function (column: string, item: Item) {
-    if (column.includes('.')) {
-      const keys = column.split('.');
-      const { length } = keys;
-
-      let content;
-      let i = 0;
-
-      while (i < length) {
-        if (i === 0) {
-          content = item[keys[0]];
-        } else if (content && typeof content === 'object') {
-          content = content[keys[i]];
-        } else {
-          content = '';
-          break;
-        }
-        i += 1;
-      }
-      return content ?? '';
-    }
-    return item[column] ?? '';
-  };
-
-  const generateColumnContent = function (column: string, item: Item) {
-    const content = getItemValue(column, item);
-    return Array.isArray(content) ? content.join(',') : content;
-  };
+  const {
+    viewOptionsComputed,
+    headersComputed,
+    generateColumnContent,
+    getColStyle,
+    getColSortStyle,
+    addIndexer,
+  } = useBaseItems(viewOptions, headers);
 
   const sortItemsFunc = function (field: string, sortType: SortType, a: Item, b: Item) {
-    if (serverOptionsComputed.value?.enabled) return 0;
-
     const valA = generateColumnContent(field, a);
     const valB = generateColumnContent(field, b);
     if (sortType === 'asc') {
@@ -61,21 +27,7 @@ export default function useItems(
     return 0;
   };
 
-  const getColStyle = (header: Header): string | undefined => {
-    const width = header.width ?? null;
-    if (width) return `width: ${width}px; min-width: ${width}px;`;
-    return undefined;
-  };
-
-  const getColSortStyle = (header: Header): string => {
-    if (valueOrDefault(header.sortable, true))
-      return viewOptionsComputed.value.orderBy[header.field] || 'none';
-    return 'none';
-  };
-
   const getPagedItems = (items: Array<Item>) => {
-    if (serverOptionsComputed.value?.enabled) return items;
-
     return items.slice(
       (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage,
       viewOptionsComputed.value.page * viewOptionsComputed.value.rowsPerPage,
@@ -83,8 +35,6 @@ export default function useItems(
   };
 
   const getOrderedItems = (items: Array<Item>) => {
-    if (serverOptionsComputed.value?.enabled) return items;
-
     let sortKeys = Object.keys(viewOptionsComputed.value.orderBy);
     if (sortKeys.length > 0) {
       let result = [...items];
@@ -98,8 +48,6 @@ export default function useItems(
   };
 
   const getFilteredItems = (items: Array<Item>) => {
-    if (serverOptionsComputed.value?.enabled) return items;
-
     let whereKeys = getProps(viewOptionsComputed.value.where);
     if (whereKeys.size <= 0) return items;
 
@@ -140,32 +88,17 @@ export default function useItems(
     return result;
   };
 
-  const addIndexer = (items: Array<Item>) => {
-    let result = [...items];
-
-    result.map(
-      (i, index) =>
-      (i['_index'] =
-        index +
-        (viewOptionsComputed.value.page - 1) * viewOptionsComputed.value.rowsPerPage),
-    );
-
-    return result;
-  };
-
   const getItemsForRender = (
-    items: Array<Item>,
-    total: Ref<number>,
+    items: Array<Item>,   
     expandable: Ref<Array<string>>,
+    total: Ref<number>,
   ) => {
     let result = [...items];
 
-    if (!serverOptionsComputed.value?.enabled) {
-      result = getFilteredItems(result);
-      total.value = result.length;
-      result = getOrderedItems(result);
-      result = getPagedItems(result);
-    }
+    result = getFilteredItems(result);
+    total.value = result.length;
+    result = getOrderedItems(result);
+    result = getPagedItems(result);
 
     let groupFields = headersComputed.value.filter((c) => c.expandable === true);
 
@@ -173,7 +106,7 @@ export default function useItems(
       result = addIndexer(result);
 
       expandable.value = [
-        ...new Set(result.map((item) => getItemValue(groupFields[0].field, item))),
+        ...new Set(result.map((item) => generateColumnContent(groupFields[0].field, item))),
       ];
     }
 

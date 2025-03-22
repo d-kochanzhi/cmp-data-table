@@ -1,6 +1,6 @@
 <template>
   <div class="cmp-table" :class="[tableClassName]">
-    <div v-if="loading" class="loading-overlay">
+    <div v-if="loadingRef" class="loading-overlay">
       <slot v-if="slots['loading']" name="loading"></slot>
       <template v-else>
         <span class="loader"></span>
@@ -284,6 +284,7 @@ import propsWithDefault from './types/propsWithDefault';
 import './scss/style.scss';
 
 import useItems from './useUtils/useItems';
+import useServerItems from './useUtils/useServerItems';
 import useEmits from './useUtils/useEmits';
 import useViewOptions from './useUtils/useViewOptions';
 import usePaging from './useUtils/usePaging';
@@ -324,12 +325,19 @@ const props = defineProps({
   fetchFunction: {
     type: Function as PropType<FetchFunction>,
     required: false,
-  },
+  }
+ 
 });
 
 const totalCountRef = ref(0);
+const loadingRef = ref(props.loading);
 
-const { viewOptions, headers, items, scrollHeight, scrollWidth, loading, serverOptions } = toRefs(props);
+// Следим за изменениями внешнего состояния загрузки
+watch(() => props.loading, (newValue) => {
+  loadingRef.value = newValue;
+});
+
+const { viewOptions, headers, items, scrollHeight, scrollWidth, serverOptions } = toRefs(props);
 
 const { clickRow, contextMenuRow } = useEmits(emits);
 const {
@@ -340,8 +348,9 @@ const {
   updateViewOptionsWhere,
 } = useViewOptions(viewOptions, emits);
 
-const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } =
-  useItems(viewOptionsComputed, headers, serverOptions);
+const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } = serverOptions.value.enabled
+  ? useServerItems(viewOptionsComputed, headers, serverOptions)
+  : useItems(viewOptionsComputed, headers);
 
 const {
   isFirstPage,
@@ -390,7 +399,7 @@ const headersForRender = computed(() => {
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
-  return getItemsForRender(items.value, totalCountRef, expandableRowsRef);
+  return getItemsForRender(items.value, expandableRowsRef, totalCountRef);
 });
 
 const fullColspan = computed(() => {
@@ -418,13 +427,12 @@ const rowsForExpand = (groupValue: string) => {
 };
 
 const loadServerData = async () => {
-  const response = await fetchServerData();
+  const response = await fetchServerData(loadingRef);
   if (response) {
     emits('update:items', response.items);
     totalCountRef.value = response.total;
   }
 }
-
 
 // Следим за изменениями параметров для серверной обработки
 watch(
@@ -459,20 +467,20 @@ defineExpose({
 :root {
   /* root */
   --cmp-table-background-color: #fff;
-
-  /*scroll-bar*/
-  --cmp-table-scrollbar-track-color: #fff;
-  --cmp-table-scrollbar-color: #fff;
-  --cmp-table-scrollbar-thumb-color: #c1c1c1;
-  --cmp-table-scrollbar-corner-color: #fff;
-
-  /*header*/
-  --cmp-table-header-font-color: #373737;
-
-  /*row*/
-  --cmp-table-row-even-color: ghostwhite;
-
-  /* pagination */
-  --active-page-color: #0e9d6e;
+  
+    /*scroll-bar*/
+    --cmp-table-scrollbar-track-color: #fff;
+    --cmp-table-scrollbar-color: #fff;
+    --cmp-table-scrollbar-thumb-color: #c1c1c1;
+    --cmp-table-scrollbar-corner-color: #fff;
+  
+    /*header*/
+    --cmp-table-header-font-color: #373737;
+  
+    /*row*/
+    --cmp-table-row-even-color: ghostwhite;
+  
+    /* pagination */
+    --active-page-color: #0e9d6e;
 }
 </style>

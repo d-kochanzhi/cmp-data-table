@@ -1,91 +1,127 @@
-# cmp-table (under construction)
+# cmp-table
 
-## _vue 3 data table_
+## _Vue 3 Data Table Component_
 
-cmp-table is simple but cusomizable data table.
+cmp-table - это настраиваемая таблица данных для Vue 3 с поддержкой TypeScript.
 
-## Demo online
+## Демо
 
-[here](https://d-kochanzhi.github.io/cmp-data-table/)
+[Онлайн демо](https://d-kochanzhi.github.io/cmp-data-table/)
 
-## Features
+## Возможности
 
-- sorting
-- grouping
-- row expanding
-- fixed headers
-- fixed columns
-- global filtering
-- column filtering
-- pagination
+- Сортировка данных
+- Группировка строк
+- Раскрывающиеся строки
+- Фиксированные заголовки
+- Фиксированные колонки
+- Глобальный поиск
+- Фильтрация по колонкам
+- Пагинация
 
-## Installation
-
-text
+## Установка
 
 ```sh
-cd 
-npm i
-node app
+npm install cmp-data-table
 ```
 
-## props
+## Использование
 
-main props
+```vue
+<template>
+  <cmp-table
+    :items="items"
+    :headers="headers"
+    :view-options="viewOptions"
+  />
+</template>
 
-| property name | type | sample |
+<script setup lang="ts">
+import { ref } from 'vue'
+import CmpTable from 'cmp-data-table'
+
+
+
+const items = ref<Item[]>([
+  { team: 'dream team' }
+])
+
+const headers = ref<Header[]>([
+  { 
+    title: 'team', 
+    field: 'team', 
+    sortable: false, 
+    filterable: false, 
+    expandable: true 
+  }
+])
+
+const viewOptions = ref<ViewOptions>({
+  page: 1,
+  rowsPerPage: 3,
+  orderBy: { team: 'desc' },
+  where: {}
+})
+</script>
+```
+
+## Props
+
+### Основные props
+
+| Имя | Тип | Пример |
 | ------ | ------ | ------ |
-| items | PropType<Item[]> |  ```const items = ref<Item[]>([{ team: 'dream team'});``` |
+| items | PropType<Item[]> | ```const items = ref<Item[]>([{ team: 'dream team'});``` |
 | headers | PropType<Header[]> | ```const headers = ref<Header[]>([{ title: 'team', field: 'team', sortable: false, filterable:false, expandable: true }]);```|
-| viewOptions | PropType<ViewOptions> |  ```const options = ref<ViewOptions>({page: 1,rowsPerPage: 3,orderBy: { team: 'desc' }, where: {}, });```|
+| viewOptions | PropType<ViewOptions> | ```const options = ref<ViewOptions>({page: 1,rowsPerPage: 3,orderBy: { team: 'desc' }, where: {}, });```|
 
-additional table props
+### Дополнительные props таблицы
 
-| property name | type | description |
+| Имя | Тип | Описание |
 | ------ | ------ | ------ |
-| caption | string | table caption |
-| searchPlaceholder | string | global filter text placeholder |
-| striped | boolean | use striped css class on rows |
-|emptyMessage| string | no data text|
-|hideFooter|boolean| hide table footer|
-|hideHeader| boolean | hide table header|
-|itemsSelected| PropType<Item[]> or null | array of selected items |
-|loading|boolean| show loading spiner|
-|showIndex|boolean| show row index as first column (autocalculated)|
-|tableClassName| string| table css class|
-|headerClassName|string| table header css class|
-|scrollHeight|number| table height in pixel. to enable scrolling|
-|scrollWidth|number| table width in pixel. to enable scrolling|
+| caption | string | Заголовок таблицы |
+| searchPlaceholder | string | Плейсхолдер для глобального поиска |
+| striped | boolean | Использовать чередующиеся строки |
+| emptyMessage | string | Текст при отсутствии данных |
+| hideFooter | boolean | Скрыть футер таблицы |
+| hideHeader | boolean | Скрыть заголовок таблицы |
+| itemsSelected | PropType<Item[]> \| null | Массив выбранных элементов |
+| loading | boolean | Показывать индикатор загрузки |
+| showIndex | boolean | Показывать индекс строки как первую колонку |
+| tableClassName | string | CSS класс для таблицы |
+| headerClassName | string | CSS класс для заголовка таблицы |
+| scrollHeight | number | Высота таблицы в пикселях для включения прокрутки |
+| scrollWidth | number | Ширина таблицы в пикселях для включения прокрутки |
 
-## slots
+## Слоты
 
-column slots
+### Слоты для колонок
 
-| template name | description |
+| Имя шаблона | Описание |
 | ------ | ------ |
-| customize-headers | fully custom table header (custom THEAD) |
-| header-prepend | first slot after THEAD |
-| header-{YourFieldName} | TH column slot |
-| header-append | last slot after all rows in THEAD |
+| customize-headers | Полностью кастомный заголовок таблицы (THEAD) |
+| header-prepend | Первый слот после THEAD |
+| header-{YourFieldName} | Слот для колонки TH |
+| header-append | Последний слот после всех строк в THEAD |
 
-row slots
+### Слоты для строк
 
-| template name | description |
+| Имя шаблона | Описание |
 | ------ | ------ |
-| body-prepend | first slot in TBODY  |
-| expandable-row| expandable row slot|
-| item-index| customize index cell |
-| item-{YourFieldName}| td cell slot|
-| empty-row| empty message row slot|
-| body-append| last slot in TBODY|
+| body-prepend | Первый слот в TBODY |
+| expandable-row | Слот для раскрывающейся строки |
+| item-index | Кастомизация ячейки индекса |
+| item-{YourFieldName} | Слот для ячейки TD |
+| empty-row | Слот для сообщения об отсутствии данных |
+| body-append | Последний слот в TBODY |
 
-## events
+## События
 
-| event name | description |
+| Имя события | Описание |
 | ------ | ------ |
-|clickRow| click on row|
-|contextmenuRow| context menu click|
+| clickRow | Клик по строке |
+| contextmenuRow | Клик правой кнопкой мыши по строке |
 
-## License
+## Лицензия
 
 MIT

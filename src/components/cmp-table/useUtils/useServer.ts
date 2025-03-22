@@ -16,20 +16,38 @@ export default function useServer(
         return serverOptions.value;
     });
 
-
+    
 
     // Дефолтная функция для получения данных
     const defaultFetchFunction: FetchFunction = async (params) => {
         if (!serverOptionsComputed.value.url) {
             throw new Error('URL is required');
         }
-        const response = await fetch(serverOptionsComputed.value.url, {
-            method: serverOptionsComputed.value.method || 'GET',
+
+        let url = serverOptionsComputed.value.url;
+        const method = serverOptionsComputed.value.method || 'GET';
+
+        // Для GET-запросов добавляем параметры в URL
+        if (method === 'GET') {
+            const searchParams = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    searchParams.append(key, String(value));
+                }
+            });
+            const queryString = searchParams.toString();
+            if (queryString) {
+                url += (url.includes('?') ? '&' : '?') + queryString;
+            }
+        }
+
+        const response = await fetch(url, {
+            method,
             headers: {
                 'Content-Type': 'application/json',
                 ...serverOptionsComputed.value.headers,
             },
-            body: serverOptionsComputed.value.method === 'POST' ? JSON.stringify(params) : undefined,
+            body: method === 'POST' ? JSON.stringify(params) : undefined,
         });
 
         if (!response.ok) {
@@ -44,10 +62,10 @@ export default function useServer(
     };
 
     // Обновляем функцию для выполнения серверного запроса
-    const fetchServerData = async () => {
+    const fetchServerData = async (loading: Ref<boolean>) => {
         if (!serverOptionsComputed.value.enabled) return;
 
-        // if (loadingComputed.value) loadingComputed.value = { true};
+        loading.value = true;
         try {
             const params: ViewOptions = {
                 page: viewOptionsComputed.value.page,
@@ -67,7 +85,7 @@ export default function useServer(
         } catch (error) {
             throw new Error('Error fetching server data');
         } finally {
-            //  if (loading) loading.value = false;
+            loading.value = false;
         }
     };
 

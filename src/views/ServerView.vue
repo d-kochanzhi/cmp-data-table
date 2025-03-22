@@ -36,15 +36,35 @@ const serverOptions = ref<ServerOptions>({
 });
 
 
-const fetchFunction = ref<FetchFunction>((params:ViewOptions) => {
-  return fetch('http://localhost:3000/posts?_page=' + params.page + '&_per_page=' + params.rowsPerPage)
-    .then((res) => res.json())
-    .then((data) => {
-    return {
-      items: data.data,
-      total: data.items
-    };
-  });
+const fetchFunction = ref<FetchFunction>(async (params:ViewOptions) => {
+  const sortParams = Object.entries(params.orderBy || {})
+    .map(([field, direction]) => direction === 'desc' ? `-${field}` : field)
+    .join(',');
+
+  const url = new URL('http://localhost:3000/posts');
+  url.searchParams.append('_page', params.page.toString());
+  url.searchParams.append('_per_page', params.rowsPerPage.toString());
+  if (sortParams) {
+    url.searchParams.append('_sort', sortParams);
+  }
+
+  // Функция для создания случайной задержки
+  const randomDelay = () => {
+    const min = 100; // 100 мсекунды
+    const max = 3000; // 3 секунд
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  // Добавляем случайную задержку перед запросом
+  await new Promise(resolve => setTimeout(resolve, randomDelay()));
+
+  const response = await fetch(url.toString());
+  const data = await response.json();
+  
+  return {
+    items: data.data,
+    total: data.items
+  };
 });
 
 
