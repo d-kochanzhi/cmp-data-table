@@ -52,6 +52,10 @@ onMounted(() => {
   fetch('https://jsonplaceholder.typicode.com/users')
     .then((response) => response.json())
     .then((json) => (items.value = [...json]))
-    .then(() => (loading.value = false));
+    .then(() => (loading.value = false))
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      loading.value = false;
+    });
 });
 </script>

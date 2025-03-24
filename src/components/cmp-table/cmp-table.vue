@@ -278,7 +278,7 @@ const {
 } = useViewOptions(viewOptions, emits);
 
 const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } = serverOptions.value.enabled
-  ? useServerItems(viewOptionsComputed, headers, serverOptions)
+  ? useServerItems(viewOptionsComputed, headers)
   : useItems(viewOptionsComputed, headers);
 
 const {
@@ -387,7 +387,6 @@ defineExpose({
   rowsForExpand,
   updateQuickFilter,
   updateGlobalFilter,
-  showEmptySlot,
   loadServerData,
 });
 </script>
