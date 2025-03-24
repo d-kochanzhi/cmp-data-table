@@ -37,15 +37,25 @@ const serverOptions = ref<ServerOptions>({
 
 
 const fetchFunction = ref<FetchFunction>(async (params:ViewOptions) => {
-  const sortParams = Object.entries(params.orderBy || {})
-    .map(([field, direction]) => direction === 'desc' ? `-${field}` : field)
-    .join(',');
-
+ 
   const url = new URL('http://localhost:3000/posts');
+
   url.searchParams.append('_page', params.page.toString());
   url.searchParams.append('_per_page', params.rowsPerPage.toString());
-  if (sortParams) {
-    url.searchParams.append('_sort', sortParams);
+  
+  if(params.orderBy) {
+    const sortParams = Object.entries(params.orderBy || {})
+    .map(([field, direction]) => direction === 'desc' ? `-${field}` : field)
+    .join(',');
+  }
+
+  // Добавляем параметры фильтрации
+  if (params.where) {
+    Object.entries(params.where).forEach(([field, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.append(field, value.toString());
+      }
+    });
   }
 
   // Функция для создания случайной задержки
