@@ -14,6 +14,13 @@ export type Header = {
 
 export type Item = Record<string, any>;
 
+export type FilterOperator = 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'ne' | 'lk';
+
+export type FilterValue = {
+  value: string;
+  operator: FilterOperator;
+};
+
 export type ViewOptions = {
   page: number;
   rowsPerPage: number;
@@ -21,7 +28,7 @@ export type ViewOptions = {
     [key: string]: SortType;
   };
   where: {
-    [key: string]: any;
+    [key: string]: FilterValue;
   };
 };
 

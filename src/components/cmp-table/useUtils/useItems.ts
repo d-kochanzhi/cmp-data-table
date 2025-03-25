@@ -1,4 +1,4 @@
-import { Header, Item, ViewOptions, SortType } from '../types/cmp-table';
+import { Header, Item, ViewOptions, SortType, FilterValue } from '../types/cmp-table';
 import { Ref } from 'vue';
 import { getProps, valueOrDefault } from './useUtils';
 import useBaseItems from './useBaseItems';
@@ -47,6 +47,30 @@ export default function useItems(
     return items;
   };
 
+  const compareValues = (value: any, filterValue: FilterValue, fieldValue: string) => {
+    const compareValue = String(fieldValue).toLowerCase();
+    const searchValue = String(filterValue.value).toLowerCase();
+
+    switch (filterValue.operator) {
+      case 'eq':
+        return compareValue === searchValue;
+      case 'lt':
+        return Number(compareValue) < Number(searchValue);
+      case 'lte':
+        return Number(compareValue) <= Number(searchValue);
+      case 'gt':
+        return Number(compareValue) > Number(searchValue);
+      case 'gte':
+        return Number(compareValue) >= Number(searchValue);
+      case 'ne':
+        return compareValue !== searchValue;
+      case 'lk':
+        return compareValue.includes(searchValue);
+      default:
+        return compareValue === searchValue;
+    }
+  };
+
   const getFilteredItems = (items: Array<Item>) => {
     let whereKeys = getProps(viewOptionsComputed.value.where);
     if (whereKeys.size <= 0) return items;
@@ -60,10 +84,11 @@ export default function useItems(
           return headersComputed.value
             .filter((c) => valueOrDefault(c.filterable, true))
             .some((c) => {
-              return (
-                String(generateColumnContent(c.field, i))
-                  .toLowerCase()
-                  .indexOf(viewOptionsComputed.value.where['_g'].toLowerCase()) > -1
+              const fieldValue = String(generateColumnContent(c.field, i));
+              return compareValues(
+                fieldValue,
+                viewOptionsComputed.value.where['_g'],
+                fieldValue
               );
             });
         }),
@@ -76,12 +101,14 @@ export default function useItems(
     /*  quick search by fields */
     whereKeys.forEach((value, key) => {
       result = [
-        ...result.filter(
-          (i) =>
-            String(generateColumnContent(key, i))
-              .toLowerCase()
-              .indexOf(value.toLowerCase()) > -1,
-        ),
+        ...result.filter((i) => {
+          const fieldValue = String(generateColumnContent(key, i));
+          return compareValues(
+            fieldValue,
+            viewOptionsComputed.value.where[key],
+            fieldValue
+          );
+        }),
       ];
     });
 
@@ -89,7 +116,7 @@ export default function useItems(
   };
 
   const getItemsForRender = (
-    items: Array<Item>,   
+    items: Array<Item>,
     expandable: Ref<Array<string>>,
     total: Ref<number>,
   ) => {

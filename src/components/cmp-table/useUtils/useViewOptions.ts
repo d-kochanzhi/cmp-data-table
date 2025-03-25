@@ -1,5 +1,5 @@
 import { Ref, computed, reactive, ref } from 'vue';
-import { DEFAULT_VIEW_OPTIONS, EmitsEventName, ViewOptions } from '../types/cmp-table';
+import { DEFAULT_VIEW_OPTIONS, EmitsEventName, ViewOptions, FilterValue } from '../types/cmp-table';
 import useEmits from './useEmits';
 
 export default function useViewOptions(
@@ -62,10 +62,16 @@ export default function useViewOptions(
     }
   };
 
-  const updateViewOptionsWhere = (field: string, value: string) => {
+  const updateViewOptionsWhere = (field: string, filterValue: FilterValue) => {
     if (viewOptionsComputed.value) {
       viewOptionsComputed.value.page = 1;
-      viewOptionsComputed.value.where[field] = value;
+
+      // Если значение пустое, удаляем параметр из where
+      if (!filterValue.value || filterValue.value.trim() === '') {
+        delete viewOptionsComputed.value.where[field];
+      } else {
+        viewOptionsComputed.value.where[field] = filterValue;
+      }
 
       viewOptionsComputed.value = {
         ...viewOptionsComputed.value,

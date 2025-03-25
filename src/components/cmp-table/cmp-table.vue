@@ -82,8 +82,9 @@
               <th v-for="(header, index) in headersForRender" :key="index" class="header-quickFilter">
                 <div class="header-quickFilter">
                   <div v-if="valueOrDefault(header.filterable, true)">
-                    <cmpTableFilter v-model="quickFilters[header.field]"                     
-                      @filter="(value) => updateQuickFilter(header.field, value)" />
+                    <cmpTableFilter 
+                      v-model="quickFilters[header.field]"                     
+                      @filter="(filterData) => updateQuickFilter(header.field, filterData)" />
                   </div>
                 </div>
 
@@ -208,7 +209,7 @@
 import cmpTableBodyRow from './cmp-table-body-row.vue';
 import cmpTableFilter from './cmp-table-filter.vue';
 import { PropType, computed, useSlots, toRefs, ref, reactive, watch, toRef } from 'vue';
-import { Item, Header, ViewOptions, ServerOptions, FetchFunction, DEFAULT_SERVER_OPTIONS, DEFAULT_VIEW_OPTIONS } from './types/cmp-table';
+import { Item, Header, ViewOptions, ServerOptions, FetchFunction, DEFAULT_SERVER_OPTIONS, DEFAULT_VIEW_OPTIONS, FilterValue } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
 import './scss/style.scss';
 
@@ -308,17 +309,32 @@ const clickExpandableRow = (group: string) => {
 
 /* global filter */
 const searchInput = ref('');
-const searchChange = () => updateViewOptionsWhere('_g', searchInput.value);
+const searchChange = () => updateViewOptionsWhere('_g', {
+  value: searchInput.value,
+  operator: 'lk'
+});
 const updateGlobalFilter = (value: string) => {
   searchInput.value = value;
   searchChange();
 };
 
 /* quick filter */
+const quickFilters = reactive<{ [key: string]: FilterValue }>({});
 
-const quickFilters = reactive<{ [key: string]: any }>({});
-const updateQuickFilter = (field: string, value: string) =>
-  updateViewOptionsWhere(field, value);
+const updateQuickFilter = (field: string, filterData: FilterValue) => {
+  quickFilters[field] = filterData;
+  updateViewOptionsWhere(field, filterData);
+};
+
+// Добавить в setup или created
+headers.value.forEach(header => {
+  if (valueOrDefault(header.filterable, true)) {
+    quickFilters[header.field] = {
+      value: '',
+      operator: 'eq'
+    };
+  }
+});
 
 /* render  */
 const headersForRender = computed(() => {
