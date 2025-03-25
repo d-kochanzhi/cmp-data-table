@@ -66,20 +66,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style scoped>
-.filter-container {
-  display: flex;
-  gap: 4px;
-}
-
-.operator-select {
-  padding: 2px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-}
-
-.text-filter {
-  flex: 1;
-}
-</style> 

@@ -80,13 +80,13 @@
             <tr>
               <th v-if="showIndex"></th>
               <th v-for="(header, index) in headersForRender" :key="index" class="header-quickFilter">
-                <div class="header-quickFilter">
+                
                   <div v-if="valueOrDefault(header.filterable, true)">
                     <cmpTableFilter 
                       v-model="quickFilters[header.field]"                     
                       @filter="(filterData) => updateQuickFilter(header.field, filterData)" />
                   </div>
-                </div>
+                
 
               </th>
             </tr>
@@ -424,6 +424,8 @@ defineExpose({
   /* root */
   --cmp-table-background-color: #fff;
 
+  --cmp-table-border-color: #e2e8f0;
+  
   /*scroll-bar*/
   --cmp-table-scrollbar-track-color: #fff;
   --cmp-table-scrollbar-color: #fff;

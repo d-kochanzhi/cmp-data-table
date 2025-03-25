@@ -7,6 +7,7 @@ export type Header = {
   field: string;
   sortable?: boolean;
   filterable?: boolean;
+  filterOptions?: FilterOptions;
   hidden?: boolean;
   width?: number;
   expandable?: boolean;
@@ -19,6 +20,13 @@ export type FilterOperator = 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'ne' | 'lk';
 export type FilterValue = {
   value: string;
   operator: FilterOperator;
+};
+
+export type FilterOptions = {
+  showOperatorSelect?: boolean;
+};
+export const DEFAULT_FILTER_OPTIONS: FilterOptions = {
+  showOperatorSelect: true,
 };
 
 export type ViewOptions = {

@@ -201,7 +201,7 @@ div.cmp-table__main {
 
         text-align: left;
         padding: 0.75rem 1rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--cmp-table-border-color);
         border-width: 0 0 1px 0;
         font-weight: 600;
         transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s,
@@ -213,10 +213,39 @@ div.cmp-table__main {
           input.text-filter {
             color: #334155;
             padding: 0.2rem 0.2rem;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--cmp-table-border-color);
             appearance: none;
             border-radius: 3px;
             width: 100%;
+          }
+
+          .filter-container {
+            display: flex;
+            gap: 4px;
+          }
+          
+          .operator-select {
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1;
+          }
+          
+          .operator-select:hover {
+            outline: none;
+            border: 1px solid var(--cmp-table-border-color);
+          }
+          
+          .text-filter {
+            flex: 1;
           }
         }
 
@@ -285,7 +314,7 @@ div.cmp-table__main {
 
         > td {
           text-align: left;
-          border: 1px solid #e2e8f0;
+          border: 1px solid var(--cmp-table-border-color);
           border-width: 0 0 1px 0;
           padding: 0.5rem 1rem;
 
