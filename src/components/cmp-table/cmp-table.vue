@@ -326,15 +326,27 @@ const updateQuickFilter = (field: string, filterData: FilterValue) => {
   updateViewOptionsWhere(field, filterData);
 };
 
-// Добавить в setup или created
-headers.value.forEach(header => {
-  if (valueOrDefault(header.filterable, true)) {
-    quickFilters[header.field] = {
-      value: '',
-      operator: 'eq'
-    };
-  }
-});
+watch(
+  () => headers.value,
+  (newHeaders) => {
+    newHeaders.forEach(header => {
+      if (valueOrDefault(header.filterable, true) && !quickFilters[header.field]) {
+        quickFilters[header.field] = {
+          value: '',
+          operator: 'eq'
+        };
+      }
+    });
+
+    // Удаляем фильтры для колонок, которых больше нет
+    Object.keys(quickFilters).forEach(field => {
+      if (!newHeaders.find(h => h.field === field)) {
+        delete quickFilters[field];
+      }
+    });
+  },
+  { immediate: true }
+);
 
 /* render  */
 const headersForRender = computed(() => {
