@@ -53,8 +53,7 @@ const fetchFunction = ref<FetchFunction>(async (params:ViewOptions) => {
   if (params.where) {
     Object.entries(params.where).forEach(([field, filterValue]) => {
       if (filterValue && filterValue.value && filterValue.value.trim() !== '') {
-        url.searchParams.append(`${field}_operator`, filterValue.operator);
-        url.searchParams.append(field, filterValue.value.toString());
+        url.searchParams.append(`${field}_${filterValue.operator}`, filterValue.value);
       }
     });
   }
