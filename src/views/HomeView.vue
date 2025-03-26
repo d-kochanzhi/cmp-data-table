@@ -83,13 +83,7 @@ const items = ref<Item[]>([
 ]);
 
 const rowClicked = (item: Item, event: Event) => {
-  items.value.push({
-    player: 'New Joe',
-    team: 'Pioner',
-    number: 0,
-    indicator: { height: '0', weight: 0 },
-    country: 'RUS',
-  });
+  console.log(item, event);
 };
 </script>
 

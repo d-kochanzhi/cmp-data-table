@@ -24,6 +24,7 @@ export type FilterValue = {
 
 export type FilterOptions = {
   showOperatorSelect?: boolean;
+
 };
 export const DEFAULT_FILTER_OPTIONS: FilterOptions = {
   showOperatorSelect: true,

@@ -1,13 +1,12 @@
 <template>
   <div class="filter-container">
     <select v-model="filterValue.operator" class="operator-select" @change="handleFilter">
-      <option value="eq">=</option>
-      <option value="lt">&lt;</option>
-      <option value="lte">&le;</option>
-      <option value="gt">&gt;</option>
-      <option value="gte">&ge;</option>
-      <option value="ne">&ne;</option>
-      <option value="lk">*</option>
+      <option v-for="option in filterOptions" 
+              :key="option.value" 
+              :value="option.value" 
+              :title="option.title">
+        {{ option.symbol }}
+      </option>
     </select>
     <input
       class="text-filter"
@@ -29,6 +28,18 @@ export default defineComponent({
     modelValue: {
       type: Object as () => FilterValue,
       required: true
+    },
+    filterOptions: {
+      type: Array as () => Array<{ value: string; title: string; symbol: string }>,
+      default: () => [
+        { value: 'eq', title: 'Equal', symbol: '=' },
+        { value: 'lt', title: 'Less Than', symbol: '<' },
+        { value: 'lte', title: 'Less Than or Equal', symbol: '≤' },
+        { value: 'gt', title: 'Greater Than', symbol: '>' },
+        { value: 'gte', title: 'Greater Than or Equal', symbol: '≥' },
+        { value: 'ne', title: 'Not Equal', symbol: '≠' },
+        { value: 'lk', title: 'Like', symbol: '*' }
+      ]
     }
   },
 
