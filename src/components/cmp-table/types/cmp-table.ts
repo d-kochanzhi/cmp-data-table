@@ -2,6 +2,8 @@
 
 export type SortType = 'asc' | 'desc' | 'none';
 
+export type DataType = 'number' | 'string' | 'date' | 'boolean' | 'auto';
+
 export type Header = {
   title: string;
   field: string;
@@ -11,6 +13,7 @@ export type Header = {
   hidden?: boolean;
   width?: number;
   expandable?: boolean;
+  dataType?: DataType;
 };
 
 export type Item = Record<string, any>;

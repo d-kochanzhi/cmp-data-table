@@ -83,7 +83,8 @@
                 
                   <div v-if="valueOrDefault(header.filterable, true)">
                     <cmpTableFilter 
-                      v-model="quickFilters[header.field]"                     
+                      v-model="quickFilters[header.field]"          
+                      :dataType="header.dataType"           
                       @filter="(filterData) => updateQuickFilter(header.field, filterData)" />
                   </div>
                 

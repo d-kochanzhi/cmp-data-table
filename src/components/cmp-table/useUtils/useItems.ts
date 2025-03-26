@@ -1,4 +1,4 @@
-import { Header, Item, ViewOptions, SortType, FilterValue } from '../types/cmp-table';
+import { Header, Item, ViewOptions, SortType, FilterValue, DataType } from '../types/cmp-table';
 import { Ref } from 'vue';
 import { getProps, valueOrDefault } from './useUtils';
 import useBaseItems from './useBaseItems';
@@ -16,15 +16,40 @@ export default function useItems(
     addIndexer,
   } = useBaseItems(viewOptions, headers);
 
+  const determineDataType = (value: any, dataType?: DataType): DataType => {
+    if (dataType) return dataType;
+
+    if (typeof value === 'number') return 'number';
+    if (typeof value === 'boolean') return 'boolean';
+    if (value instanceof Date) return 'date';
+    if (!isNaN(Date.parse(value)) && value.includes('-')) return 'date';
+    return 'string';
+  };
+
+  const compareByType = (valA: any, valB: any, dataType?: DataType): number => {
+    const type = determineDataType(valA, dataType);
+
+    switch (type) {
+      case 'number':
+        return Number(valA) - Number(valB);
+      case 'boolean':
+        return (valA === valB) ? 0 : valA ? 1 : -1;
+      case 'date':
+        const dateA = new Date(valA);
+        const dateB = new Date(valB);
+        return dateA.getTime() - dateB.getTime();
+      default:
+        return String(valA).localeCompare(String(valB));
+    }
+  };
+
   const sortItemsFunc = function (field: string, sortType: SortType, a: Item, b: Item) {
+    const header = headersComputed.value.find(h => h.field === field);
     const valA = generateColumnContent(field, a);
     const valB = generateColumnContent(field, b);
-    if (sortType === 'asc') {
-      return valA > valB ? 1 : -1;
-    } else if (sortType === 'desc') {
-      return valB > valA ? 1 : -1;
-    }
-    return 0;
+
+    const compareResult = compareByType(valA, valB, header?.dataType);
+    return sortType === 'asc' ? compareResult : -compareResult;
   };
 
   const getPagedItems = (items: Array<Item>) => {
@@ -47,27 +72,48 @@ export default function useItems(
     return items;
   };
 
-  const compareValues = (value: any, filterValue: FilterValue, fieldValue: string) => {
-    const compareValue = String(fieldValue).toLowerCase();
-    const searchValue = String(filterValue.value).toLowerCase();
+  const compareValues = (value: any, filterValue: FilterValue, dataType?: DataType) => {
+    const type = determineDataType(value, dataType);
+    const compareValue = type === 'number' ? Number(value) : String(value).toLowerCase();
+    const searchValue = type === 'number' ? Number(filterValue.value) : String(filterValue.value).toLowerCase();
 
-    switch (filterValue.operator) {
-      case 'eq':
-        return compareValue === searchValue;
-      case 'lt':
-        return Number(compareValue) < Number(searchValue);
-      case 'lte':
-        return Number(compareValue) <= Number(searchValue);
-      case 'gt':
-        return Number(compareValue) > Number(searchValue);
-      case 'gte':
-        return Number(compareValue) >= Number(searchValue);
-      case 'ne':
-        return compareValue !== searchValue;
-      case 'lk':
-        return compareValue.includes(searchValue);
+    switch (type) {
+      case 'number':
+        switch (filterValue.operator) {
+          case 'eq': return compareValue === searchValue;
+          case 'lt': return compareValue < searchValue;
+          case 'lte': return compareValue <= searchValue;
+          case 'gt': return compareValue > searchValue;
+          case 'gte': return compareValue >= searchValue;
+          case 'ne': return compareValue !== searchValue;
+          default: return compareValue === searchValue;
+        }
+
+      case 'date':
+        const dateCompare = new Date(compareValue).getTime();
+        const dateSearch = new Date(searchValue).getTime();
+        switch (filterValue.operator) {
+          case 'eq': return dateCompare === dateSearch;
+          case 'lt': return dateCompare < dateSearch;
+          case 'lte': return dateCompare <= dateSearch;
+          case 'gt': return dateCompare > dateSearch;
+          case 'gte': return dateCompare >= dateSearch;
+          case 'ne': return dateCompare !== dateSearch;
+          default: return dateCompare === dateSearch;
+        }
+
+      case 'boolean':
+        const boolCompare = String(compareValue).toLowerCase() === 'true';
+        const boolSearch = String(searchValue).toLowerCase() === 'true';
+        return filterValue.operator === 'ne' ? boolCompare !== boolSearch : boolCompare === boolSearch;
+
       default:
-        return compareValue === searchValue;
+        switch (filterValue.operator) {
+          case 'eq': return compareValue === searchValue;
+          case 'ne': return compareValue !== searchValue;
+          case 'lk': return String(compareValue).includes(String(searchValue));
+          default: return compareValue === searchValue;
+        }
     }
   };
 
@@ -88,7 +134,7 @@ export default function useItems(
               return compareValues(
                 fieldValue,
                 viewOptionsComputed.value.where['_g'],
-                fieldValue
+                c.dataType
               );
             });
         }),
@@ -100,13 +146,14 @@ export default function useItems(
 
     /*  quick search by fields */
     whereKeys.forEach((value, key) => {
+      const header = headersComputed.value.find(h => h.field === key);
       result = [
         ...result.filter((i) => {
           const fieldValue = String(generateColumnContent(key, i));
           return compareValues(
             fieldValue,
             viewOptionsComputed.value.where[key],
-            fieldValue
+            header?.dataType
           );
         }),
       ];

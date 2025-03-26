@@ -1,7 +1,7 @@
 <template>
   <div class="filter-container">
     <select v-model="filterValue.operator" class="operator-select" @change="handleFilter">
-      <option v-for="option in filterOptions" 
+      <option v-for="option in availableOperators" 
               :key="option.value" 
               :value="option.value" 
               :title="$t(option.title)">
@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { FilterValue } from './types/cmp-table';
+import { FilterValue, DataType } from './types/cmp-table';
 
 export default defineComponent({
   name: 'CmpTableFilter',
@@ -29,17 +29,9 @@ export default defineComponent({
       type: Object as () => FilterValue,
       required: true
     },
-    filterOptions: {
-      type: Array as () => Array<{ value: string; title: string; symbol: string }>,
-      default: () => [
-        { value: 'eq', title: 'filter.equal', symbol: '=' },
-        { value: 'lt', title: 'filter.lessThan', symbol: '<' },
-        { value: 'lte', title: 'filter.lessThanOrEqual', symbol: '≤' },
-        { value: 'gt', title: 'filter.greaterThan', symbol: '>' },
-        { value: 'gte', title: 'filter.greaterThanOrEqual', symbol: '≥' },
-        { value: 'ne', title: 'filter.notEqual', symbol: '≠' },
-        { value: 'lk', title: 'filter.like', symbol: '*' }
-      ]
+    dataType: {
+      type: String as () => DataType | undefined,
+      default: undefined
     }
   },
 
@@ -49,6 +41,43 @@ export default defineComponent({
         value: '',
         operator: 'eq'
       } as FilterValue
+    }
+  },
+
+  computed: {
+    effectiveDataType(): DataType {
+      return this.dataType || 'auto';
+    },
+
+    availableOperators() {
+      const baseOperators = [
+        { value: 'eq', title: 'filter.equal', symbol: '=' },
+        { value: 'ne', title: 'filter.notEqual', symbol: '≠' }
+      ];
+
+      switch (this.effectiveDataType) {
+        case 'number':
+        case 'date':
+          return [
+            ...baseOperators,
+            { value: 'lt', title: 'filter.lessThan', symbol: '<' },
+            { value: 'lte', title: 'filter.lessThanOrEqual', symbol: '≤' },
+            { value: 'gt', title: 'filter.greaterThan', symbol: '>' },
+            { value: 'gte', title: 'filter.greaterThanOrEqual', symbol: '≥' }
+          ];
+        case 'string':
+          return [
+            ...baseOperators,
+            { value: 'lk', title: 'filter.like', symbol: '*' }
+          ];
+        case 'boolean':
+          return baseOperators;
+        default:
+          return [
+            ...baseOperators,
+            { value: 'lk', title: 'filter.like', symbol: '*' }
+          ];
+      }
     }
   },
 
