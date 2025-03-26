@@ -1,10 +1,13 @@
 <template>
   <div class="filter-container">
-    <select v-model="filterValue.operator" class="operator-select" @change="handleFilter">
+    <select v-model="filterValue.operator" 
+            class="operator-select" 
+            @change="handleFilter"
+            :title="getOperatorTitle(filterValue.operator)">
       <option v-for="option in availableOperators" 
               :key="option.value" 
               :value="option.value" 
-              :title="$t(option.title)">
+              :title="getOperatorTitle(option.value)">
         {{ option.symbol }}
       </option>
     </select>
@@ -17,92 +20,101 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { FilterValue, DataType } from './types/cmp-table';
 
-export default defineComponent({
-  name: 'CmpTableFilter',
-  
-  props: {
-    modelValue: {
-      type: Object as () => FilterValue,
-      required: true
-    },
-    dataType: {
-      type: String as () => DataType | undefined,
-      default: undefined
-    }
-  },
+interface Operator {
+  value: string;
+  symbol: string;
+}
 
-  data() {
-    return {
-      filterValue: {
-        value: '',
-        operator: 'eq'
-      } as FilterValue
-    }
-  },
+const props = defineProps<{
+  modelValue: FilterValue;
+  dataType?: DataType;
+}>();
 
-  computed: {
-    effectiveDataType(): DataType {
-      return this.dataType || 'auto';
-    },
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: FilterValue): void;
+  (e: 'filter', value: FilterValue): void;
+}>();
 
-    availableOperators() {
-      const baseOperators = [
-        { value: 'eq', title: 'filter.equal', symbol: '=' },
-        { value: 'ne', title: 'filter.notEqual', symbol: '≠' }
+const { t } = useI18n();
+
+const filterValue = ref<FilterValue>({
+  value: '',
+  operator: 'eq'
+});
+
+const effectiveDataType = computed((): DataType => {
+  return props.dataType || 'auto';
+});
+
+const availableOperators = computed((): Operator[] => {
+  const baseOperators = [
+    { value: 'eq', symbol: '=' },
+    { value: 'ne', symbol: '≠' }
+  ];
+
+  switch (effectiveDataType.value) {
+    case 'number':
+    case 'date':
+      return [
+        ...baseOperators,
+        { value: 'lt',  symbol: '<' },
+        { value: 'lte', symbol: '≤' },
+        { value: 'gt',  symbol: '>' },
+        { value: 'gte', symbol: '≥'}
       ];
-
-      switch (this.effectiveDataType) {
-        case 'number':
-        case 'date':
-          return [
-            ...baseOperators,
-            { value: 'lt', title: 'filter.lessThan', symbol: '<' },
-            { value: 'lte', title: 'filter.lessThanOrEqual', symbol: '≤' },
-            { value: 'gt', title: 'filter.greaterThan', symbol: '>' },
-            { value: 'gte', title: 'filter.greaterThanOrEqual', symbol: '≥' }
-          ];
-        case 'string':
-          return [
-            ...baseOperators,
-            { value: 'lk', title: 'filter.like', symbol: '*' }
-          ];
-        case 'boolean':
-          return baseOperators;
-        default:
-          return [
-            ...baseOperators,
-            { value: 'lk', title: 'filter.like', symbol: '*' }
-          ];
-      }
-    }
-  },
-
-  watch: {
-    modelValue: {
-      immediate: true,
-      handler(newValue: FilterValue) {
-        this.filterValue = { ...newValue };
-      }
-    }
-  },
-
-  emits: ['update:modelValue', 'filter'],
-
-  methods: {
-    handleInput(event: Event) {
-      const target = event.target as HTMLInputElement;
-      this.filterValue.value = target.value;
-      this.$emit('update:modelValue', this.filterValue);
-    },
-
-    handleFilter() {
-      this.$emit('filter', this.filterValue);
-      this.$emit('update:modelValue', this.filterValue);
-    }
+    case 'string':
+      return [
+        ...baseOperators,
+        { value: 'lk',  symbol: '*' }
+      ];
+    case 'boolean':
+      return baseOperators;
+    default:
+      return [
+        ...baseOperators,
+        { value: 'lk', symbol: '*' }
+      ];
   }
 });
+
+watch(() => props.modelValue, (newValue: FilterValue) => {
+  filterValue.value = { ...newValue };
+}, { immediate: true });
+
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  filterValue.value.value = target.value;
+  emit('update:modelValue', filterValue.value);
+};
+
+const handleFilter = () => {
+  emit('filter', filterValue.value);
+  emit('update:modelValue', filterValue.value);
+};
+
+const getOperatorTitle = (operator: string): string => {
+  switch (operator) {
+    case 'eq':
+      return t('filter.equal');
+    case 'ne':
+      return t('filter.notEqual');
+    case 'lt':
+      return t('filter.lessThan');
+    case 'lte':
+      return t('filter.lessThanOrEqual');
+    case 'gt':
+      return t('filter.greaterThan');
+    case 'gte':
+      return t('filter.greaterThanOrEqual');
+    case 'lk':
+      return t('filter.like');
+    default:
+      return t(`filter.${operator}`);
+  }
+};
 </script>

@@ -8,11 +8,11 @@
     </div>
     <div class="cmp-table__filter">
       <slot v-bind="{
-        filterModel: searchInput,
+        filterModel: searchInputRef,
         filterCallback: updateGlobalFilter,
       }" name="search-global">
         <i class="icon-filter"></i>
-        <input class="input-filter" :placeholder="searchPlaceholder" v-model="searchInput"
+        <input class="input-filter" :placeholder="searchPlaceholder" v-model="searchInputRef"
           @keydown.enter="searchChange" />
       </slot>
     </div>
@@ -305,6 +305,15 @@ const { fetchServerData } = useServer(
 const expandableRowsRef = ref([]);
 const expandableRowsState = reactive<Map<string, number>>(new Map());
 
+// Инициализируем все группы как открытые при их изменении
+watch(expandableRowsRef, (newGroups) => {
+  newGroups.forEach(group => {
+    if (!expandableRowsState.has(group)) {
+      expandableRowsState.set(group, 1);
+    }
+  });
+}, { immediate: true });
+
 const clickExpandableRow = (group: string) => {
   expandableRowsState.set(
     group,
@@ -313,13 +322,13 @@ const clickExpandableRow = (group: string) => {
 };
 
 /* global filter */
-const searchInput = ref('');
+const searchInputRef = ref('');
 const searchChange = () => updateViewOptionsWhere('_g', {
-  value: searchInput.value,
+  value: searchInputRef.value,
   operator: 'lk'
 });
 const updateGlobalFilter = (value: string) => {
-  searchInput.value = value;
+  searchInputRef.value = value;
   searchChange();
 };
 
