@@ -4,7 +4,7 @@
       <option v-for="option in filterOptions" 
               :key="option.value" 
               :value="option.value" 
-              :title="option.title">
+              :title="$t(option.title)">
         {{ option.symbol }}
       </option>
     </select>
@@ -32,13 +32,13 @@ export default defineComponent({
     filterOptions: {
       type: Array as () => Array<{ value: string; title: string; symbol: string }>,
       default: () => [
-        { value: 'eq', title: 'Equal', symbol: '=' },
-        { value: 'lt', title: 'Less Than', symbol: '<' },
-        { value: 'lte', title: 'Less Than or Equal', symbol: '≤' },
-        { value: 'gt', title: 'Greater Than', symbol: '>' },
-        { value: 'gte', title: 'Greater Than or Equal', symbol: '≥' },
-        { value: 'ne', title: 'Not Equal', symbol: '≠' },
-        { value: 'lk', title: 'Like', symbol: '*' }
+        { value: 'eq', title: 'filter.equal', symbol: '=' },
+        { value: 'lt', title: 'filter.lessThan', symbol: '<' },
+        { value: 'lte', title: 'filter.lessThanOrEqual', symbol: '≤' },
+        { value: 'gt', title: 'filter.greaterThan', symbol: '>' },
+        { value: 'gte', title: 'filter.greaterThanOrEqual', symbol: '≥' },
+        { value: 'ne', title: 'filter.notEqual', symbol: '≠' },
+        { value: 'lk', title: 'filter.like', symbol: '*' }
       ]
     }
   },

@@ -10,6 +10,10 @@ export default {
     type: String,
     default: 'Search',
   },
+  locale: {
+    type: String,
+    default: '',
+  },
   striped: {
     type: Boolean,
     default: false,

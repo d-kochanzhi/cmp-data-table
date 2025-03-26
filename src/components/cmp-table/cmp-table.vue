@@ -167,32 +167,30 @@
     <nav class="cmp-table__paginator">
       <ul class="pagination">
         <li class="page-item">
-          <button class="page-link" :disabled="isFirstPage" @click.stop="updateViewOptionsPage(1)">
+          <button class="page-link" :disabled="isFirstPage" @click.stop="updateViewOptionsPage(1)" :title="$t('pagination.first')">
             «
           </button>
         </li>
         <li class="page-item">
           <button :disabled="!canGoBackPage" class="page-link"
-            @click.stop="updateViewOptionsPage(viewOptionsComputed.page - 1)">
+            @click.stop="updateViewOptionsPage(viewOptionsComputed.page - 1)" :title="$t('pagination.previous')">
             ‹
           </button>
         </li>
-        <!----><!--[-->
         <li class="page-item" v-for="page in getPageListForRender">
           <button class="page-link" :disabled="page == viewOptionsComputed.page"
             :class="[{ active: page == viewOptionsComputed.page }]" @click.stop="updateViewOptionsPage(page)">
             {{ page }}
           </button>
         </li>
-        <!--]--><!---->
         <li class="page-item">
           <button :disabled="!canGoNextPage" class="page-link"
-            @click.stop="updateViewOptionsPage(viewOptionsComputed.page + 1)">
+            @click.stop="updateViewOptionsPage(viewOptionsComputed.page + 1)" :title="$t('pagination.next')">
             ›
           </button>
         </li>
         <li class="page-item">
-          <button :disabled="isLastPage" class="page-link" @click.stop="updateViewOptionsPage(lastPage)">
+          <button :disabled="isLastPage" class="page-link" @click.stop="updateViewOptionsPage(lastPage)" :title="$t('pagination.last')">
             »
           </button>
         </li>
@@ -212,6 +210,7 @@ import { PropType, computed, useSlots, toRefs, ref, reactive, watch, toRef } fro
 import { Item, Header, ViewOptions, ServerOptions, FetchFunction, DEFAULT_SERVER_OPTIONS, DEFAULT_VIEW_OPTIONS, FilterValue } from './types/cmp-table';
 import propsWithDefault from './types/propsWithDefault';
 import './scss/style.scss';
+import { useI18n } from 'vue-i18n';
 
 import useItems from './useUtils/useItems';
 import useServerItems from './useUtils/useServerItems';
@@ -255,9 +254,14 @@ const props = defineProps({
   fetchFunction: {
     type: Function as PropType<FetchFunction>,
     required: false,
+  },
+  locale: {
+    type: String,
+    default: '',
   }
-
 });
+
+const { locale } = useI18n();
 
 const totalCountRef = ref(0);
 const loadingRef = ref(props.loading);
@@ -407,6 +411,13 @@ watch(
   },
   { deep: true }
 );
+
+// Следим за изменениями переданного языка
+watch(() => props.locale, (newLocale) => {
+  if (newLocale && ['en', 'ru', 'de', 'it', 'fr', 'ja'].includes(newLocale)) {
+    locale.value = newLocale;
+  }
+}, { immediate: true });
 
 /*---------------- */
 

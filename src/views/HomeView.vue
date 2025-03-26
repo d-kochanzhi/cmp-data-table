@@ -1,6 +1,7 @@
 <template>
   <div class="about">
     <cmpTable
+      locale="en"
       :caption="`This is a table`"
       :search-placeholder="`Search`"
       show-index
