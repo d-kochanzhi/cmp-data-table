@@ -28,6 +28,12 @@
         <span> Player {{ slotProps.item[slotProps.header.field] }}</span>
       </template>
       <template #expandable-row="slotProps"> team {{ slotProps.group }} </template>
+      <template #item-age="slotProps">
+        <span> {{ slotProps.item[slotProps.header.field] }} years old</span>
+      </template>
+      <template #item-isAdult="slotProps">
+        <span> {{ slotProps.item[slotProps.header.field] ? 'Adult' : 'Child' }}</span>
+      </template>
     </cmpTable>
   </div>
 </template>
@@ -47,39 +53,44 @@ const options = ref<ViewOptions>({
 const headers = ref<Header[]>([
   { title: 'player', field: 'player', width: 250 },
   { title: 'team', field: 'team', sortable: true, expandable: true },
-  { title: 'number', field: 'number', dataType: 'number' },
-  { title: 'indicator', field: 'indicator.weight' },
-  { title: 'country', field: 'country' },
+  { title: 'weight ', field: 'indicator.weight' },
+  { title: 'age (number)', field: 'age', dataType: 'number' },
+  { title: 'birth (date)', field: 'birth', dataType: 'date' },
+  { title:'isAdult (bool)', field: 'isAdult', dataType: 'boolean'},
 ]);
 
 const items = ref<Item[]>([
   {
     player: 'Stephen Curry',
     team: 'GSW',
-    number: 30,
     indicator: { height: '6-9', weight: 250 },
-    country: 'USA',
+    age: 30,
+    birth: '2009-03-14',
+    isAdult: false,
   },
   {
     player: 'Lebron James',
     team: 'LAL',
-    number: 6,
     indicator: { height: '6-9', weight: 777 },
-    country: 'USA',
+    age: 35,
+    birth: '1984-12-30',
+    isAdult: true,
   },
   {
     player: 'Stuard Joe',
     team: 'Pioner',
-    number: 12,
     indicator: { height: '8', weight: 250 },
-    country: 'USA',
+    age: 30,
+    birth: '1988-03-14',
+    isAdult: true,
   },
-  {
+  { 
     player: 'Jon Joe',
     team: 'Losted',
-    number: 2,
     indicator: { height: '8', weight: 250 },
-    country: 'Russia',
+    age: 30,
+    birth: '2022-03-14',
+    isAdult: false,
   },
 ]);
 
