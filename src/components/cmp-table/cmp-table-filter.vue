@@ -17,6 +17,14 @@
       :value="filterValue.value"
       @input="handleInput"
       @keydown.enter="handleFilter" />
+    <button 
+      v-if="filterValue.value"
+      class="clear-button"
+      @click="handleClear"
+      type="button"
+      :title="t('filter.clear')">
+      ✕
+    </button>
   </div>
 </template>
 
@@ -95,6 +103,12 @@ const handleInput = (event: Event) => {
 const handleFilter = () => {
   emit('filter', filterValue.value);
   emit('update:modelValue', filterValue.value);
+};
+
+const handleClear = () => {
+  filterValue.value.value = '';
+  emit('update:modelValue', filterValue.value);
+  emit('filter', filterValue.value);
 };
 
 const getOperatorTitle = (operator: string): string => {
