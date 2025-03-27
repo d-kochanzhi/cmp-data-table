@@ -220,6 +220,8 @@ import useViewOptions from './useUtils/useViewOptions';
 import usePaging from './useUtils/usePaging';
 import { valueOrDefault } from './useUtils/useUtils';
 import useServer from './useUtils/useServer';
+import useLoading from './useUtils/useLoading';
+import useFiltering from './useUtils/useFiltering';
 
 // slot
 const slots = useSlots();
@@ -265,12 +267,7 @@ const props = defineProps({
 const { locale } = useI18n();
 
 const totalCountRef = ref(0);
-const loadingRef = ref(props.loading);
-
-// Следим за изменениями внешнего состояния загрузки
-watch(() => props.loading, (newValue) => {
-  loadingRef.value = newValue;
-});
+const { loadingRef } = useLoading(props.loading);
 
 const { viewOptions, headers, items, scrollHeight, scrollWidth, serverOptions } = toRefs(props);
 
@@ -301,8 +298,17 @@ const { fetchServerData } = useServer(
   serverOptions,
   props.fetchFunction
 );
+
+const { 
+  searchInputRef, 
+  quickFilters, 
+  updateGlobalFilter, 
+  updateQuickFilter,
+  initializeQuickFilters 
+} = useFiltering(updateViewOptionsWhere);
+
 /* expandable  */
-const expandableRowsRef = ref([]);
+const expandableRowsRef = ref<string[]>([]);
 const expandableRowsState = reactive<Map<string, number>>(new Map());
 
 // Инициализируем все группы как открытые при их изменении
@@ -321,46 +327,7 @@ const clickExpandableRow = (group: string) => {
   );
 };
 
-/* global filter */
-const searchInputRef = ref('');
-const searchChange = () => updateViewOptionsWhere('_g', {
-  value: searchInputRef.value,
-  operator: 'lk'
-});
-const updateGlobalFilter = (value: string) => {
-  searchInputRef.value = value;
-  searchChange();
-};
 
-/* quick filter */
-const quickFilters = reactive<{ [key: string]: FilterValue }>({});
-
-const updateQuickFilter = (field: string, filterData: FilterValue) => {
-  quickFilters[field] = filterData;
-  updateViewOptionsWhere(field, filterData);
-};
-
-watch(
-  () => headers.value,
-  (newHeaders) => {
-    newHeaders.forEach(header => {
-      if (valueOrDefault(header.filterable, true) && !quickFilters[header.field]) {
-        quickFilters[header.field] = {
-          value: '',
-          operator: 'eq'
-        };
-      }
-    });
-
-    // Удаляем фильтры для колонок, которых больше нет
-    Object.keys(quickFilters).forEach(field => {
-      if (!newHeaders.find(h => h.field === field)) {
-        delete quickFilters[field];
-      }
-    });
-  },
-  { immediate: true }
-);
 
 /* render  */
 const headersForRender = computed(() => {
@@ -390,12 +357,16 @@ const showEmptySlot = computed(() => {
 const rowsForExpand = (groupValue: string) => {
   if (expandableRowsRef.value.length < 0) return [];
 
-  let groupFields = headers.value.filter((c) => c.expandable === true);
-
+  const groupFields = headers.value.filter((c) => c.expandable === true);
   return rowsForRender.value.filter(
     (item) => groupValue == generateColumnContent(groupFields[0].field, item),
   );
 };
+
+const searchChange = () => updateViewOptionsWhere('_g', {
+  value: searchInputRef.value,
+  operator: 'lk'
+});
 
 const loadServerData = async () => {
   const response = await fetchServerData(loadingRef);
@@ -428,6 +399,28 @@ watch(() => props.locale, (newLocale) => {
     locale.value = newLocale;
   }
 }, { immediate: true });
+
+// Инициализируем быстрые фильтры при изменении заголовков
+watch(
+  () => headers.value,
+  (newHeaders) => {
+    initializeQuickFilters(newHeaders);
+  },
+  { immediate: true }
+);
+
+// Обновляем расширяемые строки при изменении данных
+watch(
+  () => rowsForRender.value,
+  (newRows) => {
+    const groupFields = headers.value.filter((c) => c.expandable === true);
+    if (groupFields.length > 0) {
+      expandableRowsRef.value = [
+        ...new Set(newRows.map((item) => generateColumnContent(groupFields[0].field, item))),
+      ];
+    }
+  }
+);
 
 /*---------------- */
 
