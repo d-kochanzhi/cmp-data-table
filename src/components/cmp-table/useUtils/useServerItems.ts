@@ -12,6 +12,7 @@ export default function useServerItems(
     getColStyle,
     getColSortStyle,
     addIndexer,
+    headersForRender
   } = useBaseItems(viewOptions, headers);
 
   const getItemsForRender = (
@@ -38,5 +39,6 @@ export default function useServerItems(
     getColStyle,
     getColSortStyle,
     getItemsForRender,
+    headersForRender
   };
 } 

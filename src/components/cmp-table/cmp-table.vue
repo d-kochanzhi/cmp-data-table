@@ -101,7 +101,7 @@
               :key="group_index">
               <tr class="expandable-row">
                 <td :colspan="fullColspan">
-                  <div class="expandable__item" @click.stop="clickExpandableRow(group)">
+                  <div class="expandable__item" @click.stop="expandableRowСlick(group)">
                     <i class="expand-icon" :class="[{ expanding: expandableRowsState.get(group) == 1 }]"></i>
                     <slot :name="`expandable-row`" v-bind="{
                       group: group,
@@ -222,6 +222,7 @@ import { valueOrDefault } from './useUtils/useUtils';
 import useServer from './useUtils/useServer';
 import useLoading from './useUtils/useLoading';
 import useFiltering from './useUtils/useFiltering';
+import { useExpandableRows } from './useUtils/useExpandableRows';
 
 // slot
 const slots = useSlots();
@@ -280,7 +281,7 @@ const {
   updateViewOptionsWhere,
 } = useViewOptions(viewOptions, emits);
 
-const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender } = serverOptions.value.enabled
+const { generateColumnContent, getColStyle, getColSortStyle, getItemsForRender , headersForRender} = serverOptions.value.enabled
   ? useServerItems(viewOptionsComputed, headers)
   : useItems(viewOptionsComputed, headers);
 
@@ -304,36 +305,14 @@ const {
   quickFilters, 
   updateGlobalFilter, 
   updateQuickFilter,
-  initializeQuickFilters 
+  initializeQuickFilters,
+  searchChange
 } = useFiltering(updateViewOptionsWhere);
 
-/* expandable  */
-const expandableRowsRef = ref<string[]>([]);
-const expandableRowsState = reactive<Map<string, number>>(new Map());
-
-// Инициализируем все группы как открытые при их изменении
-watch(expandableRowsRef, (newGroups) => {
-  newGroups.forEach(group => {
-    if (!expandableRowsState.has(group)) {
-      expandableRowsState.set(group, 1);
-    }
-  });
-}, { immediate: true });
-
-const clickExpandableRow = (group: string) => {
-  expandableRowsState.set(
-    group,
-    expandableRowsState.has(group) ? expandableRowsState.get(group)! * -1 : 1,
-  );
-};
-
-
+const { expandableRowsRef, expandableRowsState, expandableRowСlick } = useExpandableRows();
 
 /* render  */
-const headersForRender = computed(() => {
-  console.log('headersForRender');
-  return headers.value.filter((i) => !i.hidden);
-});
+
 
 const rowsForRender = computed(() => {
   console.log('rowsForRender');
@@ -363,10 +342,6 @@ const rowsForExpand = (groupValue: string) => {
   );
 };
 
-const searchChange = () => updateViewOptionsWhere('_g', {
-  value: searchInputRef.value,
-  operator: 'lk'
-});
 
 const loadServerData = async () => {
   const response = await fetchServerData(loadingRef);

@@ -2,7 +2,7 @@
 
 export type SortType = 'asc' | 'desc' | 'none';
 
-export type DataType = 'number' | 'string' | 'date' | 'boolean' | 'auto';
+export type DataType = 'number' | 'string' | 'date' | 'boolean';
 
 export type Header = {
   title: string;

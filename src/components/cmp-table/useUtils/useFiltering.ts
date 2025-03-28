@@ -47,6 +47,7 @@ export default function useFiltering(
     quickFilters,
     updateGlobalFilter,
     updateQuickFilter,
-    initializeQuickFilters
+    initializeQuickFilters,
+    searchChange
   };
 } 

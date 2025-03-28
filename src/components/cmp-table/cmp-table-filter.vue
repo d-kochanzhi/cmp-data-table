@@ -56,7 +56,7 @@ const filterValue = ref<FilterValue>({
 });
 
 const effectiveDataType = computed((): DataType => {
-  return props.dataType || 'auto';
+  return props.dataType || 'string';
 });
 
 const availableOperators = computed((): Operator[] => {

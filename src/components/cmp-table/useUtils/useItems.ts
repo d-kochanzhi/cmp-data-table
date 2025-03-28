@@ -14,6 +14,7 @@ export default function useItems(
     getColStyle,
     getColSortStyle,
     addIndexer,
+    headersForRender
   } = useBaseItems(viewOptions, headers);
 
   const determineDataType = (value: any, dataType?: DataType): DataType => {
@@ -192,5 +193,6 @@ export default function useItems(
     getColStyle,
     getColSortStyle,
     getItemsForRender,
+    headersForRender
   };
 }

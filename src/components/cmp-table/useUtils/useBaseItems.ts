@@ -68,6 +68,11 @@ export default function useBaseItems(
     return result;
   };
 
+  const headersForRender = computed(() => {
+    return headersComputed.value.filter((i) => !i.hidden);
+  });
+
+
   return {
     viewOptionsComputed,
     headersComputed,
@@ -76,5 +81,6 @@ export default function useBaseItems(
     getColStyle,
     getColSortStyle,
     addIndexer,
+    headersForRender,
   };
 } 
