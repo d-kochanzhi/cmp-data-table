@@ -54,7 +54,8 @@ onMounted(() => {
     .then((json) => (items.value = [...json]))
     .then(() => (loading.value = false))
     .catch((error) => {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);     
+    }).finally(() => {
       loading.value = false;
     });
 });

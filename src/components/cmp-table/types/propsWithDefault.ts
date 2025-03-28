@@ -8,7 +8,7 @@ export default {
   },
   searchPlaceholder: {
     type: String,
-    default: 'Search',
+    default: 'table.searchPlaceholder',
   },
   locale: {
     type: String,
@@ -20,7 +20,7 @@ export default {
   },
   emptyMessage: {
     type: String,
-    default: 'No Available Data',
+    default: 'table.emptyMessage',
   },
   hideFooter: {
     type: Boolean,

@@ -1,4 +1,8 @@
 export default {
+    table: {
+        searchPlaceholder: '検索...',
+        emptyMessage: '表示するデータがありません'
+    },
     filter: {
         equal: '等しい',
         lessThan: '未満',

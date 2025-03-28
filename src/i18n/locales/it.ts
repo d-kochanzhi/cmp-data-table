@@ -1,4 +1,8 @@
 export default {
+    table: {
+        searchPlaceholder: 'Cerca...',
+        emptyMessage: 'Nessun dato da visualizzare'
+    },
     filter: {
         equal: 'Uguale',
         lessThan: 'Minore di',

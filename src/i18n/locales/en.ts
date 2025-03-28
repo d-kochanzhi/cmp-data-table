@@ -1,4 +1,8 @@
 export default {
+    table: {
+        searchPlaceholder: 'Search...',
+        emptyMessage: 'No data to display'
+    },
     filter: {
         equal: 'Equal',
         lessThan: 'Less Than',

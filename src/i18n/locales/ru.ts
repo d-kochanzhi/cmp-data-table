@@ -1,4 +1,8 @@
 export default {
+    table: {
+        "searchPlaceholder": "Поиск...",
+        "emptyMessage": "Нет данных для отображения"
+    },
     filter: {
         equal: 'Равно',
         lessThan: 'Меньше',
